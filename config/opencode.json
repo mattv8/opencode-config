@@ -1,0 +1,300 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "omlx": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "oMLX",
+      "options": {
+        "baseURL": "http://127.0.0.1:8124/v1",
+        "apiKey": "{env:MLX_API_KEY}"
+      },
+      "models": {
+        "MiniMax-M2.7-ConfigI-MLX": {
+          "name": "MiniMax-M2.7-ConfigI-MLX"
+        },
+        "MiniMax-M3-REAP40-JANG_2L": {
+          "name": "MiniMax-M3-REAP40-JANG_2L"
+        },
+        "Qwen3-Coder-Next-8bit": {
+          "name": "Qwen3 Coder Next (8bit)"
+        },
+        "Qwen3.6-27B-MLX-8bit": {
+          "name": "Qwen3.6 27B MLX (8bit)"
+        },
+        "gemma-4-26B-A4B-it-MLX-4bit": {
+          "name": "Gemma 4 26B A4B Instruct (4bit)"
+        },
+        "gemma-4-31B-it-MLX-4bit": {
+          "name": "Gemma 4 31B Instruct (4bit)"
+        },
+        "gpt-oss-120b-MXFP4-Q8": {
+          "name": "GPT-OSS 120B MXFP4-Q8"
+        },
+        "nomicai-modernbert-embed-base-bf16": {
+          "name": "Nomic AI ModernBERT Embed Base (BF16)"
+        },
+        "MarkItDown": {
+          "name": "MarkItDown"
+        }
+      }
+    },
+    "openrouter": {
+      "whitelist": [
+        "deepseek/deepseek-v4-pro",
+        "deepseek/deepseek-chat",
+        "minimax/minimax-m2.1",
+        "~google/gemini-flash-latest",
+        "~google/gemini-pro-latest",
+        "~moonshotai/kimi-latest",
+        "moonshotai/kimi-k2.7-code",
+        "google/gemma-4-31b-it",
+        "z-ai/glm-5.2"
+      ],
+      "options": {
+        "provider": {
+          "order": [
+            "deepseek",
+            "google-ai-studio",
+            "minimax",
+            "moonshotai",
+            "z-ai"
+          ],
+          "allow_fallbacks": false
+        }
+      },
+      "models": {
+        "deepseek/deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro"
+        },
+        "deepseek/deepseek-chat": {
+          "name": "DeepSeek Flash"
+        },
+        "minimax/minimax-m2.1": {
+          "name": "MiniMax M2.1"
+        },
+        "~google/gemini-flash-latest": {
+          "name": "Gemini Flash Latest"
+        },
+        "~google/gemini-pro-latest": {
+          "name": "Gemini Pro Latest"
+        },
+        "~moonshotai/kimi-latest": {
+          "name": "Kimi Latest"
+        },
+        "moonshotai/kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code"
+        },
+        "google/gemma-4-31b-it": {
+          "name": "Gemma 4 31B"
+        },
+        "z-ai/glm-5.2": {
+          "name": "GLM 5.2"
+        }
+      }
+    }
+  },
+  "plugin": [
+    "opencode-claude-auth@latest",
+    "opencode-wakatime",
+    "superpowers@git+https://github.com/obra/superpowers.git"
+  ],
+  "agent": {
+    "explore": {
+      "disable": true
+    },
+    "general": {
+      "disable": true
+    },
+    "scout": {
+      "disable": true
+    },
+    "coder": {
+      "mode": "subagent",
+      "model": "openrouter/moonshotai/kimi-k2.7-code",
+      "description": "Implementation worker for focused code changes, refactors, and bug fixes after context is gathered.",
+      "prompt": "You are a bounded implementation worker, not a planner. Execute the orchestrator's scoped patch literally: change only the requested files or the smallest adjacent files needed, make the smallest correct code change, preserve unrelated user changes, follow repository instructions, and verify with the requested focused checks when practical. The orchestrator should provide a concrete goal, files or directories in scope, expected changes, constraints, non-goals, and verification commands. If the assignment is vague, broad, architectural, or a pasted raw user prompt, do not guess; return NEEDS_SCOPE with the missing details. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your summary and changed-file notes back into that folder.",
+      "permission": {
+        "doom_loop": "ask",
+        "external_directory": {
+          "/Users/elfy/.local/share/opencode/tool-output/*": "allow",
+          "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/*": "allow",
+          "/Users/elfy/.config/opencode/skills/ragtime-architecture/*": "allow",
+          "*": "ask"
+        },
+        "question": "deny",
+        "plan_enter": "deny",
+        "plan_exit": "deny",
+        "bash": "allow",
+        "read": {
+          "*.env": "ask",
+          "*.env.*": "ask",
+          "*.env.example": "allow"
+        }
+      }
+    },
+    "reviewer": {
+      "mode": "subagent",
+      "model": "anthropic/claude-opus-4-8",
+      "description": "High-accuracy code reviewer for correctness, regressions, security risks, and missing verification.",
+      "prompt": "You are a code reviewer. Prioritize concrete bugs, regressions, security issues, and missing tests. Also flag DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be extracted or reused, but only when the abstraction is clearly warranted and does not force premature or awkward coupling. Return findings first with file and line references, then residual risks. Stay read-only on code unless explicitly asked to patch. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your review notes in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
+      "permission": {
+        "edit": "deny",
+        "bash": "allow"
+      }
+    },
+    "critic": {
+      "mode": "subagent",
+      "model": "openrouter/~google/gemini-pro-latest",
+      "description": "Skeptical critic for plans, architecture, hidden assumptions, and failure modes.",
+      "prompt": "You are a skeptical critic. Challenge plans and implementations for feasibility, scope creep, hidden coupling, unsafe assumptions, and likely failure modes. Also call out DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be consolidated, while warning against over-abstraction that adds coupling or indirection without clear payoff. Prefer concise, actionable objections over broad commentary. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your objections in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
+      "permission": {
+        "doom_loop": "ask",
+        "external_directory": {
+          "/Users/elfy/.local/share/opencode/tool-output/*": "allow",
+          "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/*": "allow",
+          "/Users/elfy/.agents/skills/senior-engineering/*": "allow",
+          "/Users/elfy/.agents/skills/stop-slop/*": "allow",
+          "/Users/elfy/.config/opencode/skills/ragtime-architecture/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/verification-before-completion/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/subagent-driven-development/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-skills/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/receiving-code-review/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/requesting-code-review/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/finishing-a-development-branch/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-plans/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/executing-plans/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/dispatching-parallel-agents/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/systematic-debugging/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/brainstorming/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-git-worktrees/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/test-driven-development/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-superpowers/*": "allow",
+          "*": "ask"
+        },
+        "question": "deny",
+        "plan_enter": "deny",
+        "plan_exit": "deny",
+        "read": {
+          "*.env": "ask",
+          "*.env.*": "ask",
+          "*.env.example": "allow"
+        },
+        "edit": "deny",
+        "bash": "allow"
+      },
+      "variant": "high"
+    },
+    "designer": {
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
+      "description": "Frontend/product design worker for UI structure, interaction quality, and visual implementation guidance.",
+      "prompt": "You are a frontend and product design worker. Preserve existing design systems when present; otherwise avoid generic AI-looking layouts and propose or implement distinctive, usable interfaces. Check desktop and mobile implications. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your design notes back into that folder.",
+      "permission": {
+        "bash": "allow"
+      }
+    },
+    "explorer": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.4-mini-fast",
+      "description": "Fast discovery worker for repo mapping, relevant files, dependencies, and implementation context.",
+      "prompt": "You are a fast read-only discovery worker. Map the relevant files, dependencies, conventions, and risks for the requested task. Return compact evidence-backed context and do not implement code unless explicitly asked. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read any existing handoff file there first, then return your findings in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
+      "permission": {
+        "edit": "deny",
+        "bash": "allow"
+      }
+    },
+    "debugger": {
+      "mode": "subagent",
+      "model": "openai/gpt-5.4",
+      "description": "Systematic debugging worker for bugs, failing tests, flaky behavior, regressions, and unclear root causes.",
+      "prompt": "You are a systematic debugging worker. Use the systematic-debugging skill before investigating. Your job is to prove or disprove one assigned hypothesis, reproduction path, failing test, platform, or suspect component. Read error messages carefully, gather evidence, compare working and broken cases, and return the root-cause hypothesis plus the next smallest verification step. Do not make code changes unless the orchestrator explicitly asks you to patch. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your findings in your final response; the orchestrator will persist them. Prefer read, grep, glob, and focused bash commands. Use bash for read-only inspection and targeted test/reproduction commands.",
+      "permission": {
+        "doom_loop": "ask",
+        "external_directory": {
+          "*": "ask",
+          "/Users/elfy/.local/share/opencode/tool-output/*": "allow",
+          "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/*": "allow",
+          "/Users/elfy/.agents/skills/stop-slop/*": "allow",
+          "/Users/elfy/.agents/skills/senior-engineering/*": "allow",
+          "/Users/elfy/.config/opencode/skills/ragtime-architecture/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/subagent-driven-development/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-skills/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/verification-before-completion/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/receiving-code-review/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/brainstorming/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/dispatching-parallel-agents/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/executing-plans/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/requesting-code-review/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-superpowers/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/test-driven-development/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-git-worktrees/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/finishing-a-development-branch/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-plans/*": "allow",
+          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/systematic-debugging/*": "allow"
+        },
+        "question": "deny",
+        "plan_enter": "deny",
+        "plan_exit": "deny",
+        "read": {
+          "*.env": "ask",
+          "*.env.*": "ask",
+          "*.env.example": "allow"
+        },
+        "edit": "deny",
+        "bash": "allow"
+      }
+    }
+  },
+  "mcp": {
+    "HammRAG": {
+      "type": "remote",
+      "enabled": true,
+      "url": "https://ragtime.hammerton.com/mcp",
+      "headers": {
+        "CF-Access-Client-Id": "{env:CF_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "{env:CF_ACCESS_CLIENT_SECRET}",
+        "MCP-Password": "{env:MCP_PASSWORD}"
+      }
+    },
+    "ragtime_dev": {
+      "type": "remote",
+      "url": "http://127.0.0.1:8000/mcp",
+      "enabled": true,
+      "oauth": {
+        "redirectUri": "http://127.0.0.1:57123/mcp/oauth/callback?server=ragtime_dev&directory=%2FUsers%2Felfy"
+      }
+    },
+    "ragtime_staging": {
+      "type": "remote",
+      "enabled": true,
+      "url": "https://ragtime.dev.visnovsky.us/mcp"
+    },
+    "ragtime_prod": {
+      "type": "remote",
+      "enabled": true,
+      "url": "https://ragtime.hammerton.com/mcp",
+      "headers": {
+        "CF-Access-Client-Id": "{env:CF_ACCESS_CLIENT_ID}",
+        "CF-Access-Client-Secret": "{env:CF_ACCESS_CLIENT_SECRET}",
+        "MCP-Password": "{env:MCP_PASSWORD}"
+      }
+    },
+    "playwright": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "/Users/elfy/.config/opencode/node_modules/.bin/playwright-mcp",
+        "--headless",
+        "--browser=chromium"
+      ],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "/Users/elfy/Library/Caches/ms-playwright"
+      }
+    }
+  },
+  "instructions": [
+    ".agents/**/*.md",
+    ".github/instructions/**/*.md",
+    "AGENTS.md"
+  ]
+}
