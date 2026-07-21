@@ -9,8 +9,17 @@
         "apiKey": "{env:MLX_API_KEY}"
       },
       "models": {
+        "DeepSeek-V4-Flash-oQ2.5e-mtp": {
+          "name": "DeepSeek V4 Flash oQ2.5e MTP"
+        },
+        "Hy3-JANG_2K-MTP": {
+          "name": "Hy3 JANG 2K MTP"
+        },
         "MiniMax-M2.7-ConfigI-MLX": {
           "name": "MiniMax-M2.7-ConfigI-MLX"
+        },
+        "MiniMax-M3-Coder-Small": {
+          "name": "MiniMax M3 Coder Small"
         },
         "MiniMax-M3-REAP40-JANG_2L": {
           "name": "MiniMax-M3-REAP40-JANG_2L"
@@ -20,6 +29,9 @@
         },
         "Qwen3.6-27B-MLX-8bit": {
           "name": "Qwen3.6 27B MLX (8bit)"
+        },
+        "Qwen3.6-35B-A3B-MTP-mlx-8bit": {
+          "name": "Qwen3.6 35B A3B MTP (8bit)"
         },
         "gemma-4-26B-A4B-it-MLX-4bit": {
           "name": "Gemma 4 26B A4B Instruct (4bit)"
@@ -93,12 +105,20 @@
       }
     }
   },
+  "permission": {
+    "external_directory": {
+      "/tmp/*": "allow"
+    }
+  },
   "plugin": [
     "opencode-claude-auth@latest",
     "opencode-wakatime",
     "superpowers@git+https://github.com/obra/superpowers.git"
   ],
   "agent": {
+    "plan": {
+      "prompt": "You are the planning-mode orchestrator. Follow the global and project AGENTS.md instructions: inspect applicable repository guidance first, preserve unrelated changes, and treat the top-level agent as responsible for scope, delegation, synthesis, and verification. Do not pass raw user prompts to @coder. Before non-trivial planning, map relevant files, dependencies, conventions, and risks; use @explorer when the scope is unclear. When independent areas need exploration, dispatch multiple @explorer agents in parallel with distinct, bounded scopes; do not duplicate investigation. Run independent discovery assignments in parallel and synthesize their evidence before deciding the plan. Build execution plans as dependency-aware waves, not a serial task list. In each wave, prefer parallel @coder assignments when work splits cleanly across files, components, routes, APIs, packages, or tests. Do not serialize independent work. Give every coder a bounded handoff with goal, files in scope, expected changes, constraints, non-goals, verification, and report-back requirements. Do not assign two coders to the same files without an explicit merge plan. Mark each plan step with its wave and real dependencies; use sequential steps only when a prior output is required. For multi-agent tasks, use one .opencode/sessions/<short-task-slug>/ handoff workspace. Include @reviewer or @critic checkpoints when the global AGENTS.md review triggers apply. Keep active workers few, avoid duplicate investigation, and make the final plan specific enough to execute directly."
+    },
     "explore": {
       "disable": true
     },
@@ -110,7 +130,7 @@
     },
     "coder": {
       "mode": "subagent",
-      "model": "openrouter/moonshotai/kimi-k2.7-code",
+      "model": "openai/gpt-5.4-fast",
       "description": "Implementation worker for focused code changes, refactors, and bug fixes after context is gathered.",
       "prompt": "You are a bounded implementation worker, not a planner. Execute the orchestrator's scoped patch literally: change only the requested files or the smallest adjacent files needed, make the smallest correct code change, preserve unrelated user changes, follow repository instructions, and verify with the requested focused checks when practical. The orchestrator should provide a concrete goal, files or directories in scope, expected changes, constraints, non-goals, and verification commands. If the assignment is vague, broad, architectural, or a pasted raw user prompt, do not guess; return NEEDS_SCOPE with the missing details. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your summary and changed-file notes back into that folder.",
       "permission": {
@@ -136,7 +156,7 @@
       "mode": "subagent",
       "model": "anthropic/claude-opus-4-8",
       "description": "High-accuracy code reviewer for correctness, regressions, security risks, and missing verification.",
-      "prompt": "You are a code reviewer. Prioritize concrete bugs, regressions, security issues, and missing tests. Also flag DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be extracted or reused, but only when the abstraction is clearly warranted and does not force premature or awkward coupling. Return findings first with file and line references, then residual risks. Stay read-only on code unless explicitly asked to patch. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your review notes in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
+      "prompt": "You are a code reviewer. Prioritize concrete bugs, regressions, security issues, and missing tests. Also flag DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be extracted or reused, but only when the abstraction is clearly warranted and does not force premature or awkward coupling. Review performance too: flag avoidable O(n^2) or worse behavior, repeated linear scans in hot loops, N+1 I/O, and expensive render paths. Recommend O(n), indexed, or constant-time alternatives when the code and expected data size support them; do not recommend speculative micro-optimizations. Audit release readiness across the review scope: search for secrets embedded in source, client bundles, committed configuration, or logs; API routes that rely on UI visibility instead of server-side authorization; missing tenant or ownership checks that expose another account's data; missing error tracking or actionable production logging; backups or recovery workflows without evidence of a successful restore; payment flows that accept client-provided prices or omit provider webhook signature verification; and critical user flows without screenshot or end-to-end regression coverage. Report these only where the relevant capability exists, and require concrete evidence for findings. Return findings first with file and line references, then residual risks. Stay read-only on code unless explicitly asked to patch. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your review notes in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
       "permission": {
         "edit": "deny",
         "bash": "allow"

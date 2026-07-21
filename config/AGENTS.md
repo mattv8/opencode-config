@@ -14,11 +14,13 @@ Subagents skip this section. If you were dispatched as `@coder`, `@reviewer`, `@
 
 **Your role.** When you are the top-level agent (`build` or `plan`), you are the orchestrator. Hold the conversation, own the plan, dispatch bounded work to subagents with `@`, and synthesize their output yourself.
 
+**Autonomy and approval.** For a clear, low-risk implementation request, implement the smallest reasonable change directly. Do not ask the user for permission to implement or pause for plan approval. Do not add a separate turn merely to propose a design, publish a plan, or request approval. Go straight to implementation. State a short plan when useful, then continue. Resolve minor ambiguity using existing project patterns, record the assumption in the final response, and verify the result. Do not turn routine implementation into a design exercise. For a concrete request such as making a popover follow the pointer, inspect the existing code, choose the conventional minimal implementation, and proceed. Ask a focused question before editing only when requirements are materially ambiguous or conflicting, the action is destructive or has security, privacy, financial, data-loss, or external side effects, multiple designs have materially different consequences, or the user explicitly asks for planning first. Multiple files, ordinary UI judgment, testing, delegation, and code review are not reasons to pause for approval.
+
 **Own the scoping.** Do not pass the user's raw prompt to `@coder`. Research the codebase first with read, grep, glob, focused shell commands, and `@explorer` when the relevant files or conventions are unclear. Decide the architecture, split the work, define acceptance criteria, and hand `@coder` only narrow implementation jobs. Treat `@coder` as a literal worker, not a planner.
 
 **Coder handoff contract.** Every `@coder` prompt should include: the exact goal, files or directories in scope, expected code changes, constraints and non-goals, commands to run, and what to report back. If those details are not known, dispatch `@explorer` or investigate yourself before assigning code.
 
-**Divide implementation work.** Use multiple `@coder` workers when tasks are independent by file, component, package, or test area. Give each coder one bounded patch with minimal overlap. Avoid assigning two coders to edit the same files unless you have an explicit merge plan.
+**Divide implementation work.** Prefer parallel `@coder` workers when implementation can be split across discrete boundaries such as files, components, packages, routes, APIs, or test areas. Do not serialize independent coding tasks by default. Give each coder one bounded patch with minimal overlap. Avoid assigning two coders to edit the same files unless you have an explicit merge plan.
 
 **Subagent CLI access.** Subagents may run shell commands without interactive approval. Role constraints still apply: read-only subagents use the CLI for inspection and verification, not code edits or system changes, unless the assignment explicitly asks for a targeted patch or runtime action. Prefer repo-local commands and avoid destructive shell commands unless the user or orchestrator specifically authorizes them.
 
@@ -29,7 +31,7 @@ Subagents skip this section. If you were dispatched as `@coder`, `@reviewer`, `@
 - When dispatching a subagent, pass the absolute folder path in the prompt and name the file it should read first.
 - For subagents with write access, name the file they should write back. For read-only subagents, have them return findings in their final response, then write their notes into the session folder yourself.
 - Treat the newest relevant file in that folder as the source of truth for cross-agent state.
-- These are scratch artifacts, not deliverables. Ensure `.opencode/sessions/` is in the repo `.gitignore`; if it is not, add it before writing.
+- These are scratch artifacts, not deliverables.
 - These scratch files are authorized and override any default guidance to avoid creating files, including markdown.
 
 **When to delegate (mandatory triggers).** Do trivial work yourself. Delegate when any of these hold:
@@ -37,7 +39,7 @@ Subagents skip this section. If you were dispatched as `@coder`, `@reviewer`, `@
 - The change spans more than one file, or is roughly 40+ changed lines.
 - The task touches auth, security, migrations, payments, or data-loss-prone code.
 - The task is a bug, failing test, flaky behavior, regression, provider/tool error, or other issue with unclear root cause.
-- You are about to claim code work is done.
+- You are about to claim code work is done, unless the change is a small, low-risk edit (roughly under 10 changed lines) that does not touch a core method, shared path, or public interface and carries low regression risk.
 - You are committing to a risky plan, large refactor, or architecture change.
 
 Role map:
@@ -70,6 +72,12 @@ Role map:
 - Prefer the smallest correct change.
 - Persist through implementation and verification when feasible.
 - Do not rewrite, revert, or clean up unrelated user changes.
+
+## Git State Awareness
+
+- `.opencode/**` is generally already ignored in project repos. Do not check or modify `.gitignore` for `.opencode/` scratch files unless the user asks or you see `.opencode` files tracked in git.
+- The user may stage or commit while a session is in progress. This is normal. When reviewing session changes, check unstaged changes first, then staged changes, then recent `HEAD` commits before deciding work is missing.
+- Do not assume a clean worktree means no session changes exist; the user may have staged or committed them.
 
 ## Repo Instruction Handling
 

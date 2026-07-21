@@ -2,6 +2,11 @@
 
 Version-controlled backup of custom opencode agent configs, permissions, prompts, and skills.
 
+## Spotlight launcher bundle
+
+This repo also stores the source-controlled macOS Spotlight launcher bundle at `opencode.app/`.
+Keep the active app installed at `~/Applications/opencode.app`; update that installed copy or symlink separately if you want Spotlight to use this repo version.
+
 ## File Layout
 
 | Repo path | Installs to |
@@ -108,7 +113,7 @@ Six subagents defined in `opencode.json`:
 
 | Agent | Model | Role |
 |-------|-------|------|
-| `coder` | `openrouter/moonshotai/kimi-k2.7-code` | Implementation worker |
+| `coder` | `openai/gpt-5.4-fast` | Implementation worker |
 | `reviewer` | `anthropic/claude-opus-4-8` | Code reviewer |
 | `critic` | `openrouter/~google/gemini-pro-latest` | Skeptic for plans and architecture |
 | `designer` | `anthropic/claude-sonnet-4-6` | Frontend and product design |

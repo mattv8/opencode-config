@@ -1,0 +1,90 @@
+#!/usr/bin/osascript
+
+property maxWaitAttempts : 100
+property waitDelaySeconds : 0.1
+
+on run
+    set opencodeCommand to "opencode"
+    set iTermWasRunning to application "iTerm" is running
+
+    tell application "iTerm"
+        if iTermWasRunning and (count of windows) > 0 then
+            activate
+
+            tell current window
+                set baseSession to current session
+                tell baseSession
+                    set opencodeSession to split vertically with default profile
+                end tell
+            end tell
+        else
+            activate
+
+            if iTermWasRunning then
+                set opencodeSession to missing value
+            else
+                set opencodeSession to my waitForStartupSession()
+            end if
+
+            if opencodeSession is missing value then
+                set newWindow to create window with default profile
+                set opencodeSession to my waitForSessionInWindow(newWindow)
+            end if
+        end if
+
+        tell opencodeSession
+            write text opencodeCommand
+        end tell
+
+        my bringItermToFront()
+    end tell
+end run
+
+on bringItermToFront()
+    tell application "iTerm"
+        activate
+    end tell
+
+    delay waitDelaySeconds
+
+    try
+        tell application "System Events"
+            tell process "iTerm2"
+                set frontmost to true
+            end tell
+        end tell
+    end try
+end bringItermToFront
+
+on waitForStartupSession()
+    repeat maxWaitAttempts times
+        tell application "iTerm"
+            if (count of windows) > 0 then
+                try
+                    set targetWindow to current window
+                    set targetSession to current session of targetWindow
+                    return targetSession
+                end try
+            end if
+        end tell
+
+        delay waitDelaySeconds
+    end repeat
+
+    return missing value
+end waitForStartupSession
+
+on waitForSessionInWindow(targetWindow)
+    repeat maxWaitAttempts times
+        tell application "iTerm"
+            try
+                set targetSession to current session of targetWindow
+                return targetSession
+            end try
+        end tell
+
+        delay waitDelaySeconds
+    end repeat
+
+    error "Timed out waiting for iTerm to create a session."
+end waitForSessionInWindow
