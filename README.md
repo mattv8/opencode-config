@@ -98,14 +98,13 @@ cd ~/.opencode && npm install
 opencode
 ```
 
-Plugins auto-install on first run from the `plugin` arrays in `opencode.json` and `tui.json`:
+Plugins auto-install on first run from the `plugin` array in `opencode.json`:
 
 | Plugin | Source | Purpose |
 |--------|--------|---------|
 | `opencode-claude-auth` | npm | Anthropic authentication |
 | `opencode-wakatime` | npm | WakaTime tracking |
 | `superpowers` | git | Agent skill framework |
-| `oh-my-openagent` | npm | TUI enhancements |
 
 ## Custom Agents
 
