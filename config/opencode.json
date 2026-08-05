@@ -111,9 +111,10 @@
     }
   },
   "plugin": [
-    "opencode-claude-auth@latest",
+    "opencode-claude-auth@2.1.5",
+    "opencode-pty@git+https://github.com/sjawhar/opencode-pty.git#ts-entrypoint",
     "opencode-wakatime",
-    "superpowers@git+https://github.com/obra/superpowers.git"
+    "superpowers@git+https://github.com/obra/superpowers.git#v6.2.0"
   ],
   "agent": {
     "plan": {
@@ -144,6 +145,8 @@
         "question": "deny",
         "plan_enter": "deny",
         "plan_exit": "deny",
+        "task": "deny",
+        "openchamber": "deny",
         "bash": "allow",
         "read": {
           "*.env": "ask",
@@ -164,7 +167,7 @@
     },
     "critic": {
       "mode": "subagent",
-      "model": "openrouter/~google/gemini-pro-latest",
+      "model": "openrouter/~moonshotai/kimi-latest",
       "description": "Skeptical critic for plans, architecture, hidden assumptions, and failure modes.",
       "prompt": "You are a skeptical critic. Challenge plans and implementations for feasibility, scope creep, hidden coupling, unsafe assumptions, and likely failure modes. Also call out DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be consolidated, while warning against over-abstraction that adds coupling or indirection without clear payoff. Prefer concise, actionable objections over broad commentary. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your objections in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
       "permission": {
@@ -225,7 +228,7 @@
     },
     "debugger": {
       "mode": "subagent",
-      "model": "openai/gpt-5.4",
+      "model": "openai/gpt-5.5-fast",
       "description": "Systematic debugging worker for bugs, failing tests, flaky behavior, regressions, and unclear root causes.",
       "prompt": "You are a systematic debugging worker. Use the systematic-debugging skill before investigating. Your job is to prove or disprove one assigned hypothesis, reproduction path, failing test, platform, or suspect component. Read error messages carefully, gather evidence, compare working and broken cases, and return the root-cause hypothesis plus the next smallest verification step. Do not make code changes unless the orchestrator explicitly asks you to patch. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your findings in your final response; the orchestrator will persist them. Prefer read, grep, glob, and focused bash commands. Use bash for read-only inspection and targeted test/reproduction commands.",
       "permission": {
@@ -316,5 +319,27 @@
     ".agents/**/*.md",
     ".github/instructions/**/*.md",
     "AGENTS.md"
-  ]
+  ],
+  "command": {
+    "pr": {
+      "description": "Commit this conversation's changes and open a pull request.",
+      "template": "Create a pull request containing only the changes made in this conversation. Inspect git status, unstaged and staged diffs, and recent commits to separate intended changes from unrelated user work. Do not include unrelated files or hunks. Organize commits at meaningful categorical boundaries you determine from the changes. Each commit must contain only its related files or hunks and use the repository's commit style. Run relevant verification unless this conversation already contains fresh passing evidence for the same scope. If verification fails or the intended changes are ambiguous, do not commit or open a pull request; report the blocker. After verification passes, review each staged diff, create the commits, push the branch, and open a pull request against the appropriate base branch. This command authorizes those commits, the push, and PR creation. Return the PR URL, branch name, commits created, verification evidence, and any residual risks.",
+      "agent": "build"
+    },
+    "commit": {
+      "description": "Validate and commit only this conversation's intended changes.",
+      "template": "Commit only the changes made for this conversation. Inspect git status, unstaged and staged diffs, and recent commits to separate intended changes from unrelated user work. Run the relevant lint and CI test commands unless this conversation already contains fresh passing evidence for the same scope. If verification fails or the intended changes are ambiguous, do not commit; report the blocker. Stage only the intended files or hunks, review the staged diff, then create a concise commit that matches the repository's commit style.",
+      "agent": "build"
+    },
+    "implement": {
+      "description": "Start parallel implementation with a final review gate.",
+      "template": "Please move to implementation, use multiple @coder agents in parallel to build this quickly with a final @reviewer gate.",
+      "agent": "build"
+    },
+    "implement-and-pr": {
+      "description": "Implement the approved plan in a worktree and open a pull request.",
+      "template": "The plan is approved. Please implement it without another design or approval gate. Use an isolated worktree: create or use one for a new descriptive branch, and make all edits there. Do not modify the current checkout, its branch, index, or uncommitted files. If you cannot create or access a worktree, report the blocker and stop without editing the current checkout. Follow the approved plan, run relevant verification, and use multiple @coder agents in parallel where the work splits cleanly. Organize commits at meaningful categorical boundaries you determine from the changes. Each commit must contain only its related files or hunks and use the repository's commit style. After verification passes, push the worktree branch and open a pull request against the appropriate base branch. This command authorizes that external push and PR creation. Return the PR URL, branch name, commits created, verification evidence, and any residual risks.",
+      "agent": "build"
+    }
+  }
 }
