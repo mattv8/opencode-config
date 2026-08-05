@@ -266,6 +266,27 @@
         "edit": "deny",
         "bash": "allow"
       }
+    },
+    "reviewer-alt": {
+      "mode": "subagent",
+      "model": "openrouter/~google/gemini-pro-latest",
+      "hidden": true,
+      "description": "Non-Anthropic fallback code reviewer.",
+      "prompt": "You are the non-Anthropic fallback for @reviewer. Review code for concrete bugs, regressions, security issues, missing tests, avoidable performance problems, and release-readiness gaps. Audit secrets, authorization and tenant checks, error handling, observability, payment validation, backups, and end-to-end coverage when relevant to the scope. Report findings first with file and line references, then residual risks. Stay read-only unless explicitly asked to patch.",
+      "permission": {
+        "edit": "deny",
+        "bash": "allow"
+      }
+    },
+    "designer-alt": {
+      "mode": "subagent",
+      "model": "openrouter/z-ai/glm-5.2",
+      "hidden": true,
+      "description": "Non-Anthropic fallback frontend and product designer.",
+      "prompt": "You are the non-Anthropic fallback for @designer. Preserve existing design systems when present; otherwise create distinctive, usable interfaces rather than generic layouts. Check desktop and mobile behavior. You may implement scoped UI changes when the orchestrator asks you to do so.",
+      "permission": {
+        "bash": "allow"
+      }
     }
   },
   "mcp": {
@@ -339,6 +360,11 @@
     "implement-and-pr": {
       "description": "Implement the approved plan in a worktree and open a pull request.",
       "template": "The plan is approved. Please implement it without another design or approval gate. Use an isolated worktree: create or use one for a new descriptive branch, and make all edits there. Do not modify the current checkout, its branch, index, or uncommitted files. If you cannot create or access a worktree, report the blocker and stop without editing the current checkout. Follow the approved plan, run relevant verification, and use multiple @coder agents in parallel where the work splits cleanly. Organize commits at meaningful categorical boundaries you determine from the changes. Each commit must contain only its related files or hunks and use the repository's commit style. After verification passes, push the worktree branch and open a pull request against the appropriate base branch. This command authorizes that external push and PR creation. Return the PR URL, branch name, commits created, verification evidence, and any residual risks.",
+      "agent": "build"
+    },
+    "rate-limit": {
+      "description": "Use non-Anthropic fallback agents for this session.",
+      "template": "For the remainder of this session, the Anthropic provider is rate-limited. Do not dispatch @reviewer or @designer, including when another command requests a final @reviewer gate. Use @reviewer-alt for all code-review gates and @designer-alt for design or UI work. Use @critic for plan and architecture critique, and tell the user whenever you substitute a fallback agent. Re-apply these routing rules after session compaction if needed.",
       "agent": "build"
     }
   }
