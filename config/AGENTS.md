@@ -81,6 +81,10 @@ Role map:
 - Persist through implementation and verification when feasible.
 - Do not rewrite, revert, or clean up unrelated user changes.
 
+## Code Hygiene
+
+**DOM referential hooks.** In HTML, JSX, and TSX, default to giving the outer element of each meaningful UI boundary a stable, unique, human-readable identifier. Boundaries include pages, sections, cards, panels, containers, modals, forms, toolbars, tables, lists, and repeated component instances. Prefer `id` when an element is unique within the document; otherwise use a stable semantic `data-*` attribute or an `id` derived from a durable domain identifier. Never use array indexes, random values, or presentation-only class names as identity. Incidental layout wrappers and leaf elements do not need identifiers unless code, tests, accessibility relationships, logging, or browser inspection need to reference them.
+
 ## Git State Awareness
 
 - `.opencode/**` is generally already ignored in project repos. Do not check or modify `.gitignore` for `.opencode/` scratch files unless the user asks or you see `.opencode` files tracked in git.
