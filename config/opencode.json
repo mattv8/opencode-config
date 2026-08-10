@@ -290,15 +290,15 @@
     }
   },
   "mcp": {
-    "HammRAG": {
+    "hamm-rag": {
       "type": "remote",
-      "enabled": true,
       "url": "https://ragtime.hammerton.com/mcp",
       "headers": {
         "CF-Access-Client-Id": "{env:CF_ACCESS_CLIENT_ID}",
         "CF-Access-Client-Secret": "{env:CF_ACCESS_CLIENT_SECRET}",
         "MCP-Password": "{env:MCP_PASSWORD}"
-      }
+      },
+      "enabled": true
     },
     "ragtime_dev": {
       "type": "remote",
@@ -312,16 +312,6 @@
       "type": "remote",
       "enabled": true,
       "url": "https://ragtime.dev.visnovsky.us/mcp"
-    },
-    "ragtime_prod": {
-      "type": "remote",
-      "enabled": true,
-      "url": "https://ragtime.hammerton.com/mcp",
-      "headers": {
-        "CF-Access-Client-Id": "{env:CF_ACCESS_CLIENT_ID}",
-        "CF-Access-Client-Secret": "{env:CF_ACCESS_CLIENT_SECRET}",
-        "MCP-Password": "{env:MCP_PASSWORD}"
-      }
     },
     "playwright": {
       "type": "local",
