@@ -5,8 +5,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "oMLX",
       "options": {
-        "baseURL": "http://127.0.0.1:8124/v1",
-        "apiKey": "{env:MLX_API_KEY}"
+        "baseURL": "http://127.0.0.1:8124/v1"
       },
       "models": {
         "DeepSeek-V4-Flash-oQ2.5e-mtp": {
@@ -24,14 +23,11 @@
         "MiniMax-M3-REAP40-JANG_2L": {
           "name": "MiniMax-M3-REAP40-JANG_2L"
         },
-        "Qwen3-Coder-Next-8bit": {
-          "name": "Qwen3 Coder Next (8bit)"
+        "lmstudio-community/Qwen3.8-27B-MLX-8bit": {
+          "name": "Qwen3.8 27B MLX (8bit)"
         },
-        "Qwen3.6-27B-MLX-8bit": {
-          "name": "Qwen3.6 27B MLX (8bit)"
-        },
-        "Qwen3.6-35B-A3B-MTP-mlx-8bit": {
-          "name": "Qwen3.6 35B A3B MTP (8bit)"
+        "mlx-community/Qwen3.8-27B-bf16": {
+          "name": "Qwen3.8 27B (bf16)"
         },
         "gemma-4-26B-A4B-it-MLX-4bit": {
           "name": "Gemma 4 26B A4B Instruct (4bit)"
@@ -60,7 +56,8 @@
         "~moonshotai/kimi-latest",
         "moonshotai/kimi-k2.7-code",
         "google/gemma-4-31b-it",
-        "z-ai/glm-5.2"
+        "~z-ai/glm-latest",
+        "qwen/qwen3.8-2.4t-a95b"
       ],
       "options": {
         "provider": {
@@ -99,8 +96,11 @@
         "google/gemma-4-31b-it": {
           "name": "Gemma 4 31B"
         },
-        "z-ai/glm-5.2": {
-          "name": "GLM 5.2"
+        "~z-ai/glm-latest": {
+          "name": "GLM Latest"
+        },
+        "qwen/qwen3.8-2.4t-a95b": {
+          "name": "Qwen 3.8 2.4T A95B"
         }
       }
     }
@@ -167,7 +167,7 @@
     },
     "critic": {
       "mode": "subagent",
-      "model": "openrouter/~moonshotai/kimi-latest",
+      "model": "openrouter/qwen/qwen3.8-2.4t-a95b",
       "description": "Skeptical critic for plans, architecture, hidden assumptions, and failure modes.",
       "prompt": "You are a skeptical critic. Challenge plans and implementations for feasibility, scope creep, hidden coupling, unsafe assumptions, and likely failure modes. Also call out DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be consolidated, while warning against over-abstraction that adds coupling or indirection without clear payoff. Prefer concise, actionable objections over broad commentary. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your objections in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
       "permission": {
@@ -269,7 +269,7 @@
     },
     "reviewer-alt": {
       "mode": "subagent",
-      "model": "openrouter/~google/gemini-pro-latest",
+      "model": "openrouter/deepseek/deepseek-v4-pro",
       "hidden": true,
       "description": "Non-Anthropic fallback code reviewer.",
       "prompt": "You are the non-Anthropic fallback for @reviewer. Review code for concrete bugs, regressions, security issues, missing tests, avoidable performance problems, and release-readiness gaps. Audit secrets, authorization and tenant checks, error handling, observability, payment validation, backups, and end-to-end coverage when relevant to the scope. Enforce the global Code Hygiene rules during frontend reviews. For HTML, JSX, and TSX, flag meaningful UI boundaries whose outer elements lack stable, human-readable id or semantic data-* hooks. Check that identifiers are deterministic and unique, and reject array indexes, random values, or presentation-only classes as identity. Do not require identifiers on incidental layout wrappers or leaf elements without a reasonable referential use. Report findings first with file and line references, then residual risks. Stay read-only unless explicitly asked to patch.",
@@ -280,7 +280,7 @@
     },
     "designer-alt": {
       "mode": "subagent",
-      "model": "openrouter/z-ai/glm-5.2",
+      "model": "openrouter/~z-ai/glm-latest",
       "hidden": true,
       "description": "Non-Anthropic fallback frontend and product designer.",
       "prompt": "You are the non-Anthropic fallback for @designer. Preserve existing design systems when present; otherwise create distinctive, usable interfaces rather than generic layouts. Check desktop and mobile behavior. You may implement scoped UI changes when the orchestrator asks you to do so.",
@@ -321,8 +321,8 @@
         "--headless",
         "--browser=chromium"
       ],
-      "env": {
-        "PLAYWRIGHT_BROWSERS_PATH": "/Users/elfy/Library/Caches/ms-playwright"
+      "environment": {
+        "PLAYWRIGHT_BROWSERS_PATH": "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/playwright"
       }
     }
   },
