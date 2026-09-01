@@ -202,6 +202,17 @@
         "bash": "allow"
       }
     },
+    "reviewer-fast": {
+      "mode": "subagent",
+      "model": "anthropic/claude-sonnet-4-6",
+      "steps": 12,
+      "description": "Provider: Anthropic. Fast read-only code reviewer for routine correctness, regressions, and missing verification.",
+      "prompt": "You are a fast read-only code reviewer for routine implementation checks. Focus on the highest-value concrete findings in the changed scope: correctness bugs, regressions, security issues, missing verification, and clear release-readiness gaps. Flag DRY problems or performance issues only when the evidence is concrete and the fix is straightforward. Enforce the global Code Hygiene rules during frontend reviews. For HTML, JSX, and TSX, flag meaningful UI boundaries whose outer elements lack stable, human-readable id or semantic data-* hooks. Check that identifiers are deterministic and unique, and reject array indexes, random values, or presentation-only classes as identity. Do not require identifiers on incidental layout wrappers or leaf elements without a reasonable referential use. Return findings first with file and line references, then residual risks. Stay read-only on code unless explicitly asked to patch. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your review in your final response; the orchestrator will persist it. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
+      "permission": {
+        "edit": "deny",
+        "bash": "allow"
+      }
+    },
     "reviewer-local": {
       "mode": "subagent",
       "model": "omlx/Qwen3.8-27B-MTPLX-Optimized-Quality",
@@ -425,7 +436,6 @@
     }
   },
   "instructions": [
-    ".agents/**/*.md",
     ".github/instructions/**/*.md",
     "AGENTS.md"
   ],
@@ -442,12 +452,12 @@
     },
     "implement": {
       "description": "Start parallel implementation with a final review gate.",
-      "template": "Please move to implementation, use multiple @coder agents in parallel to build this quickly with a final @reviewer gate.",
+      "template": "Please move to implementation, use multiple @coder agents in parallel to build this quickly with a final @reviewer-fast gate unless global high-risk triggers require @reviewer.",
       "agent": "build"
     },
     "critique-and-implement": {
       "description": "Critique an approved plan before parallel implementation.",
-      "template": "The plan is approved. In the current checkout, write or update a scratch spec doc in .opencode/sessions/<short-task-slug>/ that captures the approved plan, scope, constraints, verification, and parallelization boundaries. Have @critic review that spec first, then incorporate any valid findings directly into the spec and execution plan without asking for another user approval gate. Once revised, move straight into implementation: dispatch multiple @coder agents in parallel for independent, non-overlapping workstreams, give each coder a bounded handoff, and preserve unrelated user changes. Finish with a final @reviewer gate, run relevant verification, and report the implemented changes, review findings, verification evidence, and any residual risks. Do not stage or commit unless explicitly asked.",
+      "template": "The plan is approved. In the current checkout, write or update a scratch spec doc in .opencode/sessions/<short-task-slug>/ that captures the approved plan, scope, constraints, verification, and parallelization boundaries. Have @critic review that spec first, then incorporate any valid findings directly into the spec and execution plan without asking for another user approval gate. Once revised, move straight into implementation: dispatch multiple @coder agents in parallel for independent, non-overlapping workstreams, give each coder a bounded handoff, and preserve unrelated user changes. Finish with a final @reviewer-fast gate unless global high-risk triggers require @reviewer, run relevant verification, and report the implemented changes, review findings, verification evidence, and any residual risks. Do not stage or commit unless explicitly asked.",
       "agent": "build"
     },
     "implement-and-pr": {
@@ -457,7 +467,7 @@
     },
     "rate-limit-anthropic": {
       "description": "Use non-Anthropic fallback agents when Anthropic is rate-limited.",
-      "template": "For the remainder of this session, the Anthropic provider is rate-limited and /rate-limit-anthropic is active. Do not dispatch @reviewer, @designer, or @coder-fast, including when another command requests these agents. Use @reviewer-alt for all code-review gates, @designer-alt for design or UI work, and @coder (not @coder-fast) for implementation. Use @critic for plan and architecture critique. Tell the user whenever you substitute one of these fallback roles, and preserve or restate these routing rules after session compaction so they continue to apply.",
+      "template": "For the remainder of this session, the Anthropic provider is rate-limited and /rate-limit-anthropic is active. Do not dispatch @reviewer, @reviewer-fast, @designer, or @coder-fast, including when another command requests these agents. Use @reviewer-alt for all code-review gates, @designer-alt for design or UI work, and @coder (not @coder-fast) for implementation. Use @critic for plan and architecture critique. Tell the user whenever you substitute one of these fallback roles, and preserve or restate these routing rules after session compaction so they continue to apply.",
       "agent": "build"
     },
     "rate-limit-openai": {

@@ -2,10 +2,10 @@
 
 ## 1. Scope and precedence
 
-- Instruction precedence: `.agents/**/*.md`, then `.github/instructions/**/*.md`, then `AGENTS.md`.
-- Before editing, check the file's directory chain and subtree for instructions. Read `.agents/` before `AGENTS.md`; follow the most specific applicable file.
+- Instruction precedence: applicable `.agents/**/*.md`, then applicable `.github/instructions/**/*.md`, then `AGENTS.md`.
+- Before editing, check the file's directory chain and subtree for repository-local instruction files. Read the most specific applicable file first. Do not bulk-read `.agents/skills/**` or skill reference trees as repository instructions; load skills on demand through the `skill` tool.
 - System, developer, safety, and user instructions override repository instruction files.
-- If you are the top-level agent (`build` or `plan`), orchestrate: hold the conversation, own the plan, dispatch bounded `@` work, and synthesize results. If you were dispatched as `@coder`, `@reviewer`, `@critic`, `@designer`, `@explorer`, or `@debugger`, skip orchestration and do only your assigned role.
+- If you are the top-level agent (`build` or `plan`), orchestrate: hold the conversation, own the plan, dispatch bounded `@` work, and synthesize results. If you were dispatched as `@coder`, `@reviewer-fast`, `@reviewer`, `@critic`, `@designer`, `@explorer`, or `@debugger`, skip orchestration and do only your assigned role.
 
 ## 2. Autonomy and questions
 
@@ -22,6 +22,11 @@
 
 - Work in the current checkout. Do not create, propose, or request a worktree unless the user explicitly asks; use an existing linked worktree.
 - Do not request design or specification review by default. If explicitly requested or materially different choices require a decision, request at most one review per task, even across phases. Do not re-review minor edits. After design approval or a clear implementation request, continue without another gate.
+- Keep delegation and review routing separate. Preserve required use of `@coder`, `@explorer`, `@debugger`, `@critic`, and `@designer` when their scope or risk triggers apply; this review policy only changes which reviewer, if any, gates completion.
+- Use `@reviewer-fast` as the default bounded routine reviewer for non-trivial completion gates. Use `@reviewer` as the high-accuracy Opus escalation for high-risk scopes or when the user asks for maximum review depth.
+- Require `@reviewer` for auth, security, migrations, payments, data-loss-prone code, concurrency, substantial public-interface compatibility risk, large refactors or architecture changes, unresolved regressions or failures, and explicit requests for high-accuracy review.
+- Require `@reviewer-fast` for other non-trivial completion gates, such as multi-file or roughly 40+ line code changes, shared or core path changes, and behavior-changing features or bug fixes.
+- You may skip reviewer delegation for a small low-risk edit, roughly under 10 changed lines, that does not touch a core or shared path, a public interface, or behavior with meaningful regression risk.
 
 ## 4. Orchestration and delegation
 
@@ -34,9 +39,9 @@
   - the change spans more than one file, or is roughly 40+ changed lines
   - the task touches auth, security, migrations, payments, or data-loss-prone code
   - the task is a bug, failing test, flaky behavior, regression, provider or tool error, or another issue with unclear root cause
-  - you are about to claim code work is done, unless the change is a small low-risk edit, roughly under 10 changed lines, that does not touch a core method, shared path, or public interface and carries low regression risk
+  - you are about to claim code work is done and the change is not a small low-risk edit, roughly under 10 changed lines, that does not touch a core or shared path, a public interface, or behavior with meaningful regression risk
   - you are committing to a risky plan, large refactor, or architecture change
-- Roles: read-only `@explorer` maps non-trivial files, dependencies, conventions, and risks before edits; `@coder` makes bounded patches without open-ended design decisions; `@reviewer` gates completion or non-trivial correctness, security, and regression risk; `@critic` challenges risky plans, large refactors, and load-bearing assumptions; `@designer` handles UI quality, interaction, and responsiveness; `@debugger` investigates bugs, failures, regressions, provider or tool errors, and unclear causes using one bounded hypothesis, reproduction, failing test, platform, or component.
+- Roles: read-only `@explorer` maps non-trivial files, dependencies, conventions, and risks before edits; `@coder` makes bounded patches without open-ended design decisions; `@reviewer-fast` handles bounded routine review for non-trivial completion gates; `@reviewer` handles high-accuracy review for high-risk correctness, security, compatibility, and regression risk; `@critic` challenges risky plans, large refactors, and load-bearing assumptions; `@designer` handles UI quality, interaction, and responsiveness; `@debugger` investigates bugs, failures, regressions, provider or tool errors, and unclear causes using one bounded hypothesis, reproduction, failing test, platform, or component.
 - Use multiple `@debugger` subagents in parallel for independent cases or hypotheses. Keep assignments isolated, require evidence and root-cause analysis, and do not ask debuggers to patch code unless you want a targeted fix; otherwise compare findings and decide or delegate the fix.
 - Brevity does not waive delegation. Keep the active worker count small, avoid duplicate investigation, and if a subagent stalls or fails, retry once with another subagent or provider or finish the task yourself and report the verification gap.
 
