@@ -326,7 +326,7 @@
     },
     "explorer": {
       "mode": "subagent",
-      "model": "openai/gpt-5.4-mini-fast",
+      "model": "openai/gpt-5.6-luna-fast",
       "description": "Provider: OpenAI. Fast discovery worker for repo mapping, relevant files, dependencies, and implementation context.",
       "prompt": "You are a fast read-only discovery worker. Map the relevant files, dependencies, conventions, and risks for the requested task. Return compact evidence-backed context and do not implement code unless explicitly asked. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read any existing handoff file there first, then return your findings in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
       "permission": {
