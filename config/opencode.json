@@ -99,7 +99,8 @@
     "opencode-claude-auth@2.1.5",
     "opencode-pty@git+https://github.com/sjawhar/opencode-pty.git#ts-entrypoint",
     "opencode-wakatime",
-    "superpowers@git+https://github.com/obra/superpowers.git#v6.2.0"
+    "superpowers@git+https://github.com/obra/superpowers.git#v6.2.0",
+    "/Users/elfy/.config/opencode/vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs"
   ],
   "agent": {
     "plan": {
@@ -439,6 +440,11 @@
     "AGENTS.md"
   ],
   "command": {
+    "i-have-adhd": {
+      "description": "Shape output for a reader with ADHD for the rest of this session.",
+      "template": "Use the `i-have-adhd` skill and apply its ruleset to every response for the rest of this session: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give concrete time estimates, and make wins visible. These rules persist until I say \"stop adhd mode\" or \"normal mode\".",
+      "agent": "build"
+    },
     "pr": {
       "description": "Commit this conversation's changes and create or update a pull request.",
       "template": "Create or update a pull request containing only the changes made in this conversation. Inspect git status, unstaged and staged diffs, and recent commits to separate intended changes from unrelated user work. Do not include unrelated files or hunks. Organize commits at meaningful categorical boundaries you determine from the changes. Each commit must contain only its related files or hunks and use the repository's commit style. Run relevant verification unless this conversation already contains fresh passing evidence for the same scope. If verification fails or the intended changes are ambiguous, do not commit or push; report the blocker. After verification passes, review each staged diff, create the commits, and push the current branch. Check if this branch already has an open pull request: if yes, the push updates it; if no, open a new pull request against the appropriate base branch. This command authorizes those commits, the push, and PR creation. Return the PR URL (existing or new), branch name, commits created, verification evidence, and any residual risks.",
