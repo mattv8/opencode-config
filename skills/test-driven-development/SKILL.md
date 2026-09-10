@@ -26,6 +26,9 @@ Write the test first. Watch it fail. Write minimal code to pass.
 - Generated code
 - Configuration files
 
+**Outside the Iron Law (no test, no permission needed):**
+- Static UI markup, styling, and presentational structure — see "UI Tests Exercise Behavior, Not Markup"
+
 Thinking "skip TDD just this once"? Stop. That's rationalization.
 
 ## The Iron Law
@@ -216,6 +219,34 @@ If an intentional copy-only change breaks a test while behavior remains
 intact, remove or relax the stale copy assertion. Do not restore
 production copy, replace the old sentence with the new sentence, or
 delete broader behavioral coverage.
+
+## UI Tests Exercise Behavior, Not Markup
+
+Adding an element to a page is not a behavior. A failing test that only
+asserts an element renders proves nothing: the only production change
+that can fail it is deleting the markup — a decision, not a bug. Do not
+write it. Write the markup, then move on.
+
+A UI change earns a test when it carries logic a mutation could silently
+break:
+
+- Conditional rendering: the element appears or hides based on state, permissions, or data
+- Interactions: clicking, typing, or submitting changes state, fires a request, or navigates
+- Data binding: supplied or fetched values render into the element
+- Accessibility contracts: roles, names, and relationships assistive technology depends on
+
+Test the condition, the interaction, or the binding — never bare
+existence. Before writing a UI test, name a realistic mutation it would
+catch (wrong branch, missing handler, broken binding). If you cannot,
+the test is process theater; skip it and skip the RED phase with it.
+
+| UI change | Test? |
+|-----------|-------|
+| New static section, heading, logo, layout wrapper | No test |
+| Styling, spacing, or class changes | No test |
+| Element shown only when `isAdmin` | Test both branches |
+| Button that saves the form | Test that the save happens |
+| List rendering fetched items | Test items appear from supplied data |
 
 ## Good Tests
 

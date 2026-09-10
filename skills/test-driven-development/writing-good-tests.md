@@ -98,8 +98,9 @@ component. Assert the real component's behavior; if the mock is what you
 are checking, unmock it or delete the assertion.
 
 ```typescript
-// ✅ Real behavior
-expect(screen.getByRole('navigation')).toBeInTheDocument();
+// ✅ Real behavior: the real component responds to interaction
+await user.click(screen.getByRole('button', { name: 'Expand' }));
+expect(screen.getByRole('navigation')).toBeVisible();
 
 // ❌ Mock existence
 expect(screen.getByTestId('sidebar-mock')).toBeInTheDocument();
@@ -188,6 +189,7 @@ test as tautological.
 | Build an expected value | Derive it by hand; never with the code under test |
 | Test a script or document | Run it / pressure-test its consumer; never grep its text |
 | Test UI text | Assert semantics and behavior; exact prose requires an explicit contract |
+| Add static markup or styling | No test — UI tests cover conditions, interactions, and bindings, not element existence |
 | Reach for a dependency test | Test your boundary contract, not their documented mechanics |
 | Want to assert on a mocked element | Test the real component, or unmock it |
 | Are about to mock a method | Learn its side effects; mock the slow/external level |
