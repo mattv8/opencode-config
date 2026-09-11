@@ -1,10 +1,12 @@
 #!/usr/bin/osascript
 
-property maxWaitAttempts : 100
-property waitDelaySeconds : 0.1
-
 on run
     set opencodeCommand to "opencode"
+    if not my ptyIsAvailable("/usr/bin/python3") then
+        display dialog "macOS cannot allocate a terminal. Restart OpenChamber to release leaked pseudo-terminals, then try again." buttons {"OK"} default button "OK" with icon stop
+        return
+    end if
+
     set iTermWasRunning to application "iTerm" is running
 
     tell application "iTerm"
@@ -12,40 +14,36 @@ on run
             activate
 
             tell current window
-                set baseSession to current session
-                tell baseSession
-                    set opencodeSession to split vertically with default profile
+                tell current session
+                    split vertically with default profile command opencodeCommand
                 end tell
             end tell
         else
             activate
-
-            if iTermWasRunning then
-                set opencodeSession to missing value
-            else
-                set opencodeSession to my waitForStartupSession()
-            end if
-
-            if opencodeSession is missing value then
-                set newWindow to create window with default profile
-                set opencodeSession to my waitForSessionInWindow(newWindow)
-            end if
+            create window with default profile command opencodeCommand
         end if
-
-        tell opencodeSession
-            write text opencodeCommand
-        end tell
 
         my bringItermToFront()
     end tell
 end run
+
+on ptyIsAvailable(pythonExecutable)
+    set probeCode to "import os; master, slave = os.openpty(); os.close(master); os.close(slave)"
+
+    try
+        do shell script quoted form of pythonExecutable & " -c " & quoted form of probeCode
+        return true
+    on error
+        return false
+    end try
+end ptyIsAvailable
 
 on bringItermToFront()
     tell application "iTerm"
         activate
     end tell
 
-    delay waitDelaySeconds
+    delay 0.1
 
     try
         tell application "System Events"
@@ -55,36 +53,3 @@ on bringItermToFront()
         end tell
     end try
 end bringItermToFront
-
-on waitForStartupSession()
-    repeat maxWaitAttempts times
-        tell application "iTerm"
-            if (count of windows) > 0 then
-                try
-                    set targetWindow to current window
-                    set targetSession to current session of targetWindow
-                    return targetSession
-                end try
-            end if
-        end tell
-
-        delay waitDelaySeconds
-    end repeat
-
-    return missing value
-end waitForStartupSession
-
-on waitForSessionInWindow(targetWindow)
-    repeat maxWaitAttempts times
-        tell application "iTerm"
-            try
-                set targetSession to current session of targetWindow
-                return targetSession
-            end try
-        end tell
-
-        delay waitDelaySeconds
-    end repeat
-
-    error "Timed out waiting for iTerm to create a session."
-end waitForSessionInWindow
