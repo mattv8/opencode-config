@@ -80,3 +80,11 @@
 - Run focused relevant checks when practical.
 - Do not claim tests, builds, or linters pass unless you ran them in the current turn.
 - Report unavailable or blocked verification clearly.
+
+### Long-Running And Periodic Commands
+
+- Use the PTY tools (`pty_spawn`, `pty_read`, `pty_write`, `pty_kill`) for anything long-running, interactive, or periodic: dev servers, watch modes, log tails, REPLs, builds, test suites, and polling for a condition.
+- Never busy-wait in bash: no `sleep` loops, `watch`, `while` timers, or repeatedly re-running a command to wait for output or completion. Spawn a PTY once and read its buffer instead.
+- For commands expected to finish (builds, test runs, migrations), spawn with `notifyOnExit: true` and a `timeoutSeconds` bound, then wait for the exit notification; do not poll with `pty_read` just to detect completion.
+- For commands meant to keep running (dev servers, watchers), spawn without a timeout, use `pty_read` with `pattern` filters to check output, and `pty_kill` when done.
+- Reserve plain `bash` for commands that complete quickly on their own.
