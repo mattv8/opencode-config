@@ -117,7 +117,7 @@
     },
     "coder": {
       "mode": "subagent",
-      "model": "openai/gpt-5.6-terra",
+      "model": "openai/gpt-5.6-terra-fast",
       "description": "Provider: OpenAI. Implementation worker for focused code changes, refactors, and bug fixes after context is gathered.",
       "prompt": "You are a bounded implementation worker, not a planner. Execute the orchestrator's scoped patch literally: change only the requested files or the smallest adjacent files needed, make the smallest correct code change, preserve unrelated user changes, follow repository instructions, and verify with the requested focused checks when practical. The orchestrator should provide a concrete goal, files or directories in scope, expected changes, constraints, non-goals, and verification commands. If the assignment is vague, broad, architectural, or a pasted raw user prompt, do not guess; return NEEDS_SCOPE with the missing details. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your summary and changed-file notes back into that folder.",
       "permission": {
