@@ -27,6 +27,7 @@
 - Require `@reviewer` for auth, security, migrations, payments, data-loss-prone code, concurrency, substantial public-interface compatibility risk, large refactors or architecture changes, unresolved regressions or failures, and explicit requests for high-accuracy review.
 - Require `@reviewer-fast` for other non-trivial completion gates, such as multi-file or roughly 40+ line code changes, shared or core path changes, and behavior-changing features or bug fixes.
 - You may skip reviewer delegation for a small low-risk edit, roughly under 10 changed lines, that does not touch a core or shared path, a public interface, or behavior with meaningful regression risk.
+- When changes include new or modified user-facing UI, dispatch `@ux-designer` alongside the reviewer pass to evaluate cohesiveness, style consistency, and interaction quality. Run both in parallel; do not gate one on the other.
 
 ## 4. Orchestration and delegation
 
