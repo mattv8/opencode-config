@@ -96,7 +96,7 @@
     }
   },
   "plugin": [
-    "opencode-claude-auth@2.1.5",
+    "opencode-claude-auth@2.2.1",
     "opencode-pty@git+https://github.com/sjawhar/opencode-pty.git#ts-entrypoint",
     "opencode-wakatime",
     "superpowers@git+https://github.com/obra/superpowers.git#v6.2.0",
