@@ -32,6 +32,30 @@
       }
     }
   },
+  "providers": {
+    "openai": {
+      "models": {
+        "gpt-6-astra": {
+          "limit": { "context": 1050000, "input": 922000 }
+        },
+        "gpt-6-astra-fast": {
+          "limit": { "context": 1050000, "input": 922000 }
+        },
+        "gpt-6-luna": {
+          "limit": { "context": 1050000, "input": 922000 }
+        },
+        "gpt-6-luna-fast": {
+          "limit": { "context": 1050000, "input": 922000 }
+        },
+        "gpt-6-sol": {
+          "limit": { "context": 1050000, "input": 922000 }
+        },
+        "gpt-6-sol-fast": {
+          "limit": { "context": 1050000, "input": 922000 }
+        }
+      }
+    }
+  },
   "disabled_providers": ["openrouter"],
   "permission": {
     "external_directory": {
