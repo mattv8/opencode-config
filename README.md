@@ -15,17 +15,16 @@ Keep the active app installed at `~/Applications/opencode.app`; update that inst
 | `config/AGENTS.md` | `~/.config/opencode/AGENTS.md` |
 | `config/tui.json` | `~/.config/opencode/tui.json` |
 | `config/package.json` | `~/.config/opencode/package.json` |
-| `config/plugins/skill-overrides.js` | `~/.config/opencode/plugins/skill-overrides.js` |
 | `config/skills/ragtime-architecture/SKILL.md` | `~/.config/opencode/skills/ragtime-architecture/SKILL.md` |
-| `skills/writing-docs/SKILL.md` | `~/.agents/skills/writing-docs/SKILL.md` |
-| `skills/test-driven-development/SKILL.md` | `~/.agents/skills/test-driven-development/SKILL.md` |
-| `skills/test-driven-development/writing-good-tests.md` | `~/.agents/skills/test-driven-development/writing-good-tests.md` |
+| `skills/` | Not copied; `opencode.json` registers `~/GitRepos/opencode-config/skills`, which overrides same-named plugin skills |
 | `home/package.json` | `~/.opencode/package.json` |
 
 ## Prerequisites
 
 - [opencode](https://opencode.ai) installed
 - Node.js 20+ and npm
+- Git
+- [Bun](https://bun.sh) (builds the PTY plugin)
 - Access to the providers in `opencode.json` (Anthropic, OpenAI, OpenRouter, local MLX server)
 
 ## Fresh Install
@@ -64,42 +63,28 @@ If you prefer literal values over env vars, replace the `{env:VAR}` references i
 **Option A: Symlink (recommended, keeps repo and live config in sync)**
 
 ```bash
-mkdir -p ~/.config/opencode/plugins ~/.config/opencode/skills/ragtime-architecture ~/.agents/skills/writing-docs ~/.agents/skills ~/.opencode
+mkdir -p ~/.config/opencode/skills/ragtime-architecture ~/.opencode
 
 ln -sf ~/GitRepos/opencode-config/config/opencode.json       ~/.config/opencode/opencode.json
 ln -sf ~/GitRepos/opencode-config/config/AGENTS.md           ~/.config/opencode/AGENTS.md
 ln -sf ~/GitRepos/opencode-config/config/tui.json            ~/.config/opencode/tui.json
 ln -sf ~/GitRepos/opencode-config/config/package.json        ~/.config/opencode/package.json
-ln -sf ~/GitRepos/opencode-config/config/plugins/skill-overrides.js \
-       ~/.config/opencode/plugins/skill-overrides.js
 ln -sf ~/GitRepos/opencode-config/config/skills/ragtime-architecture/SKILL.md \
        ~/.config/opencode/skills/ragtime-architecture/SKILL.md
-ln -sf ~/GitRepos/opencode-config/skills/writing-docs/SKILL.md \
-       ~/.agents/skills/writing-docs/SKILL.md
-ln -sfn ~/GitRepos/opencode-config/skills/test-driven-development \
-        ~/.agents/skills/test-driven-development
 ln -sf ~/GitRepos/opencode-config/home/package.json          ~/.opencode/package.json
 ```
 
 **Option B: Copy (one-time)**
 
 ```bash
-mkdir -p ~/.config/opencode/plugins ~/.config/opencode/skills/ragtime-architecture ~/.agents/skills/writing-docs ~/.agents/skills/test-driven-development ~/.opencode
+mkdir -p ~/.config/opencode/skills/ragtime-architecture ~/.opencode
 
 cp ~/GitRepos/opencode-config/config/opencode.json       ~/.config/opencode/
 cp ~/GitRepos/opencode-config/config/AGENTS.md           ~/.config/opencode/
 cp ~/GitRepos/opencode-config/config/tui.json            ~/.config/opencode/
 cp ~/GitRepos/opencode-config/config/package.json        ~/.config/opencode/
-cp ~/GitRepos/opencode-config/config/plugins/skill-overrides.js \
-   ~/.config/opencode/plugins/
 cp ~/GitRepos/opencode-config/config/skills/ragtime-architecture/SKILL.md \
    ~/.config/opencode/skills/ragtime-architecture/
-cp ~/GitRepos/opencode-config/skills/writing-docs/SKILL.md \
-   ~/.agents/skills/writing-docs/
-cp ~/GitRepos/opencode-config/skills/test-driven-development/SKILL.md \
-   ~/.agents/skills/test-driven-development/
-cp ~/GitRepos/opencode-config/skills/test-driven-development/writing-good-tests.md \
-   ~/.agents/skills/test-driven-development/
 cp ~/GitRepos/opencode-config/home/package.json          ~/.opencode/
 ```
 
@@ -110,34 +95,63 @@ cd ~/.config/opencode && npm install
 cd ~/.opencode && npm install
 ```
 
-### 5. Start opencode
+### 5. Install local plugins
+
+```bash
+mkdir -p ~/.config/opencode/vendor
+git clone https://github.com/shekohex/opencode-pty.git ~/.config/opencode/vendor/opencode-pty-source
+cd ~/.config/opencode/vendor/opencode-pty-source
+git checkout 9be51267ed31c81cc953b84da5b615496ab4c95a
+bun install
+bun run build:prod
+
+mkdir -p ~/.config/opencode/vendor/opencode-pty-v2
+cat <<'EOF' > ~/.config/opencode/vendor/opencode-pty-v2/index.js
+export { default } from "../opencode-pty-source/dist/src/v2/index.js";
+EOF
+cat <<'EOF' > ~/.config/opencode/vendor/opencode-pty-v2/package.json
+{"name":"local-opencode-pty-v2","private":true,"type":"module","main":"./index.js"}
+EOF
+
+git clone https://github.com/ayghri/i-have-adhd.git ~/.config/opencode/vendor/i-have-adhd
+cd ~/.config/opencode/vendor/i-have-adhd
+git checkout 58494af57962b2d7a996b4d419474380a299af5e
+```
+
+### 6. Start opencode
 
 ```bash
 opencode
 ```
 
-Plugins auto-install on first run from the `plugin` array in `opencode.json`:
+Plugins from the `plugins` array in `opencode.json`:
 
 | Plugin | Source | Purpose |
 |--------|--------|---------|
-| `opencode-claude-auth` | npm | Anthropic authentication |
-| `opencode-wakatime` | npm | WakaTime tracking |
-| `superpowers` | git | Agent skill framework |
+| `@ex-machina/opencode-anthropic-auth@next` | npm | Anthropic authentication |
+| `@nm156/opencode-wakatime@1.4.0` | npm | WakaTime tracking |
+| `superpowers` v6.4.1 | git | Agent skill framework |
+| `opencode-pty-v2` | local, step 5 | PTY tools |
+| `i-have-adhd` | local, step 5 | ADHD-friendly output command |
 
 ## Custom Agents
 
-Six subagents defined in `opencode.json`:
+Subagents defined in `opencode.json`:
 
 | Agent | Model | Role |
 |-------|-------|------|
-| `coder` | `openai/gpt-5.4-fast` | Implementation worker |
-| `reviewer` | `anthropic/claude-opus-4-8` | Code reviewer |
-| `critic` | `openrouter/~google/gemini-pro-latest` | Skeptic for plans and architecture |
-| `designer` | `anthropic/claude-sonnet-4-6` | Frontend and product design |
-| `explorer` | `openai/gpt-5.4-mini-fast` | Read-only discovery |
-| `debugger` | `openai/gpt-5.4` | Systematic debugging |
+| `coder` | `openai/gpt-5.6-terra-fast` | Implementation worker |
+| `coder-fast` | `anthropic/claude-haiku-4-5` | Simple, well-defined edits |
+| `reviewer` | `anthropic/claude-opus-5-5` | High-accuracy code review |
+| `reviewer-fast` | `anthropic/claude-sonnet-4-6` | Routine code review |
+| `critic` | `anthropic/claude-fable-5` | Skeptic for plans and architecture |
+| `ux-designer` | `anthropic/claude-sonnet-4-6` | UI/UX design and critique |
+| `explorer` | `openai/gpt-6-luna-fast` | Read-only discovery |
+| `debugger` | `openai/gpt-5.6-sol` | Systematic debugging |
+| `reviewer-alt` (hidden) | `openai/gpt-5.6-terra` | Non-Anthropic review fallback |
+| `designer-alt` (hidden) | `openai/gpt-5.6-terra` | Non-Anthropic UI fallback |
 
-Built-in `general`, `explore`, and `scout` agents are disabled. All subagents have non-interactive `bash` access. Read-only agents (`reviewer`, `critic`, `explorer`, `debugger`) have `edit: deny`.
+Built-in `general`, `explore`, and `scout` agents are disabled. All subagents can run shell commands without prompting. `reviewer`, `reviewer-fast`, `reviewer-alt`, `critic`, `explorer`, and `debugger` cannot edit files.
 
 ## MCP Servers
 
@@ -164,6 +178,7 @@ If using copies, sync changed files back to the repo before committing.
 ## Not Included
 
 - **Provider API keys** (Anthropic, OpenAI, OpenRouter): set via `opencode auth login` or provider-specific env vars
-- **External skills** in `~/.agents/skills/` other than `writing-docs` and `test-driven-development` (prisma, docker, stop-slop, senior-engineering, superpowers): installed via their respective package managers
+- **External skills** in `~/.agents/skills/` (prisma, docker, stop-slop, senior-engineering): installed via their package managers
+- **Superpowers skills**: come from the plugin
 - **`node_modules/`**: generated by `npm install`
 - **Session data** in `~/.opencode/sessions/`: scratch artifacts, not config

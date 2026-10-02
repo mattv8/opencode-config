@@ -70,24 +70,6 @@
             "context": 1050000,
             "input": 922000
           }
-        },
-        "gpt-6-astra-ultrafast": {
-          "limit": {
-            "context": 1050000,
-            "input": 922000
-          }
-        },
-        "gpt-6.1-sol": {
-          "limit": {
-            "context": 1050000,
-            "input": 922000
-          }
-        },
-        "gpt-6.1-sol-fast": {
-          "limit": {
-            "context": 1050000,
-            "input": 922000
-          }
         }
       }
     }
@@ -100,12 +82,15 @@
       "/tmp/*": "allow"
     }
   },
-  "plugin": [
-    "opencode-claude-auth@2.2.1",
-    "opencode-pty@git+https://github.com/sjawhar/opencode-pty.git#ts-entrypoint",
-    "opencode-wakatime",
-    "superpowers@git+https://github.com/obra/superpowers.git#v6.2.0",
+  "plugins": [
+    "@ex-machina/opencode-anthropic-auth@next",
+    "/Users/elfy/.config/opencode/vendor/opencode-pty-v2",
+    "@nm156/opencode-wakatime@1.4.0",
+    "superpowers@git+https://github.com/obra/superpowers.git#v6.4.1",
     "/Users/elfy/.config/opencode/vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs"
+  ],
+  "skills": [
+    "~/GitRepos/opencode-config/skills"
   ],
   "agent": {
     "plan": {
@@ -124,32 +109,6 @@
       "mode": "subagent",
       "model": "openai/gpt-5.6-terra-fast",
       "description": "Provider: OpenAI. Implementation worker for focused code changes, refactors, and bug fixes after context is gathered.",
-      "prompt": "You are a bounded implementation worker, not a planner. Execute the orchestrator's scoped patch literally: change only the requested files or the smallest adjacent files needed, make the smallest correct code change, preserve unrelated user changes, follow repository instructions, and verify with the requested focused checks when practical. The orchestrator should provide a concrete goal, files or directories in scope, expected changes, constraints, non-goals, and verification commands. If the assignment is vague, broad, architectural, or a pasted raw user prompt, do not guess; return NEEDS_SCOPE with the missing details. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your summary and changed-file notes back into that folder.",
-      "permission": {
-        "doom_loop": "ask",
-        "external_directory": {
-          "/Users/elfy/.local/share/opencode/tool-output/*": "allow",
-          "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/*": "allow",
-          "/Users/elfy/.config/opencode/skills/ragtime-architecture/*": "allow",
-          "*": "ask"
-        },
-        "question": "deny",
-        "plan_enter": "deny",
-        "plan_exit": "deny",
-        "task": "deny",
-        "openchamber": "deny",
-        "bash": "allow",
-        "read": {
-          "*.env": "ask",
-          "*.env.*": "ask",
-          "*.env.example": "allow"
-        }
-      }
-    },
-    "coder-local": {
-      "mode": "subagent",
-      "model": "omlx/gpt-oss-120b-MXFP4-Q8",
-      "description": "Provider: oMLX. Implementation worker for focused code changes, refactors, and bug fixes after context is gathered.",
       "prompt": "You are a bounded implementation worker, not a planner. Execute the orchestrator's scoped patch literally: change only the requested files or the smallest adjacent files needed, make the smallest correct code change, preserve unrelated user changes, follow repository instructions, and verify with the requested focused checks when practical. The orchestrator should provide a concrete goal, files or directories in scope, expected changes, constraints, non-goals, and verification commands. If the assignment is vague, broad, architectural, or a pasted raw user prompt, do not guess; return NEEDS_SCOPE with the missing details. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your summary and changed-file notes back into that folder.",
       "permission": {
         "doom_loop": "ask",
@@ -218,134 +177,12 @@
         "bash": "allow"
       }
     },
-    "reviewer-local": {
-      "mode": "subagent",
-      "model": "omlx/Qwen3.8-27B-MTPLX-Optimized-Quality",
-      "description": "Provider: oMLX. High-accuracy code reviewer for correctness, regressions, security risks, and missing verification.",
-      "prompt": "You are a code reviewer. Prioritize concrete bugs, regressions, security issues, and missing tests. Also flag DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be extracted or reused, but only when the abstraction is clearly warranted and does not force premature or awkward coupling. Review performance too: flag avoidable O(n^2) or worse behavior, repeated linear scans in hot loops, N+1 I/O, and expensive render paths. Recommend O(n), indexed, or constant-time alternatives when the code and expected data size support them; do not recommend speculative micro-optimizations. Audit release readiness across the review scope: search for secrets embedded in source, client bundles, committed configuration, or logs; API routes that rely on UI visibility instead of server-side authorization; missing tenant or ownership checks that expose another account's data; missing error tracking or actionable production logging; backups or recovery workflows without evidence of a successful restore; payment flows that accept client-provided prices or omit provider webhook signature verification; and critical user flows without screenshot or end-to-end regression coverage. Report these only where the relevant capability exists, and require concrete evidence for findings. Enforce the global Code Hygiene rules during frontend reviews. For HTML, JSX, and TSX, flag meaningful UI boundaries whose outer elements lack stable, human-readable id or semantic data-* hooks. Check that identifiers are deterministic and unique, and reject array indexes, random values, or presentation-only classes as identity. Do not require identifiers on incidental layout wrappers or leaf elements without a reasonable referential use. Return findings first with file and line references, then residual risks. Stay read-only on code unless explicitly asked to patch. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), re... (line truncated to 2000 chars)",
-      "permission": {
-        "edit": "deny",
-        "bash": "allow"
-      }
-    },
-    "critic": {
-      "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-6",
-      "description": "Provider: Anthropic. Skeptical critic for plans, architecture, hidden assumptions, and failure modes.",
-      "prompt": "You are a skeptical critic. Challenge plans and implementations for feasibility, scope creep, hidden coupling, unsafe assumptions, and likely failure modes. Also call out DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be consolidated, while warning against over-abstraction that adds coupling or indirection without clear payoff. Prefer concise, actionable objections over broad commentary. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your objections in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
-      "permission": {
-        "doom_loop": "ask",
-        "external_directory": {
-          "/Users/elfy/.local/share/opencode/tool-output/*": "allow",
-          "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/*": "allow",
-          "/Users/elfy/.agents/skills/senior-engineering/*": "allow",
-          "/Users/elfy/.agents/skills/stop-slop/*": "allow",
-          "/Users/elfy/.config/opencode/skills/ragtime-architecture/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/verification-before-completion/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/subagent-driven-development/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-skills/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/receiving-code-review/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/requesting-code-review/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/finishing-a-development-branch/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-plans/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/executing-plans/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/dispatching-parallel-agents/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/systematic-debugging/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/brainstorming/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-git-worktrees/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/test-driven-development/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-superpowers/*": "allow",
-          "*": "ask"
-        },
-        "question": "deny",
-        "plan_enter": "deny",
-        "plan_exit": "deny",
-        "read": {
-          "*.env": "ask",
-          "*.env.*": "ask",
-          "*.env.example": "allow"
-        },
-        "edit": "deny",
-        "bash": "allow"
-      },
-      "variant": "high"
-    },
-    "critic-local": {
-      "mode": "subagent",
-      "model": "omlx/Qwen3.8-27B-MTPLX-Optimized-Quality",
-      "description": "Provider: oMLX. Skeptical critic for plans, architecture, hidden assumptions, and failure modes.",
-      "prompt": "You are a skeptical critic. Challenge plans and implementations for feasibility, scope creep, hidden coupling, unsafe assumptions, and likely failure modes. Also call out DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be consolidated, while warning against over-abstraction that adds coupling or indirection without clear payoff. Prefer concise, actionable objections over broad commentary. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your objections in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
-      "permission": {
-        "doom_loop": "ask",
-        "external_directory": {
-          "/Users/elfy/.local/share/opencode/tool-output/*": "allow",
-          "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/*": "allow",
-          "/Users/elfy/.agents/skills/senior-engineering/*": "allow",
-          "/Users/elfy/.agents/skills/stop-slop/*": "allow",
-          "/Users/elfy/.config/opencode/skills/ragtime-architecture/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/verification-before-completion/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/subagent-driven-development/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-skills/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/receiving-code-review/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/requesting-code-review/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/finishing-a-development-branch/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-plans/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/executing-plans/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/dispatching-parallel-agents/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/systematic-debugging/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/brainstorming/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-git-worktrees/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/test-driven-development/*": "allow",
-          "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-superpowers/*": "allow",
-          "*": "ask"
-        },
-        "question": "deny",
-        "plan_enter": "deny",
-        "plan_exit": "deny",
-        "read": {
-          "*.env": "ask",
-          "*.env.*": "ask",
-          "*.env.example": "allow"
-        },
-        "edit": "deny",
-        "bash": "allow"
-      },
-      "variant": "high"
-    },
-    "designer": {
-      "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-6",
-      "description": "Provider: Anthropic. Frontend/product design worker for UI structure, interaction quality, and visual implementation guidance.",
-      "prompt": "You are a frontend and product design worker. Preserve existing design systems when present; otherwise avoid generic AI-looking layouts and propose or implement distinctive, usable interfaces. Check desktop and mobile implications. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your design notes back into that folder.",
-      "permission": {
-        "bash": "allow"
-      }
-    },
-    "designer-local": {
-      "mode": "subagent",
-      "model": "omlx/Qwen3.8-27B-MTPLX-Optimized-Quality",
-      "description": "Provider: oMLX. Frontend/product design worker for UI structure, interaction quality, and visual implementation guidance.",
-      "prompt": "You are a frontend and product design worker. Preserve existing design systems when present; otherwise avoid generic AI-looking layouts and propose or implement distinctive, usable interfaces. Check desktop and mobile implications. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your design notes back into that folder.",
-      "permission": {
-        "bash": "allow"
-      }
-    },
     "ux-designer": {
       "mode": "subagent",
       "model": "anthropic/claude-sonnet-4-6",
       "description": "Provider: Anthropic. UI/UX specialist for designing and critiquing the user interface and interaction flow of new features.",
       "prompt": "You are a UI/UX design specialist for new features. FIRST PRIORITY — before any design or critique work, establish the codebase style context: (1) scan .agents/**/*.md for any style guides, design-system docs, or UI conventions; (2) read adjacent frontend files near the scope of work to understand the existing component patterns, class naming, spacing, color, and typography in use. Every recommendation you make must be consistent with what you find. If you discover a conflict between a style guide and the actual code, flag it explicitly and follow the code as the source of truth. Design work: propose interface structure, visual hierarchy, interaction flow, and all states (empty, loading, error, success), with explicit desktop and mobile behavior. All proposals must match the established patterns you found — do not introduce new conventions unless nothing exists. Critique work: evaluate proposed or implemented UI against usability heuristics (clarity, affordance, feedback, consistency) and accessibility (roles, accessible names, contrast, keyboard flow, focus management), and flag any deviation from the codebase style context. Enforce the global Code Hygiene rules: meaningful UI boundaries need stable, human-readable id or semantic data-* hooks; reject array indexes, random values, or presentation-only classes as identity. Return concrete, prioritized recommendations, with file and line references when reviewing code. Stay read-only on code unless the orchestrator explicitly assigns a scoped implementation. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your design notes or critique back into that folder.",
       "permission": {
-        "bash": "allow"
-      }
-    },
-    "explorer": {
-      "mode": "subagent",
-      "model": "openai/gpt-5.6-luna",
-      "description": "Provider: OpenAI. Fast discovery worker for repo mapping, relevant files, dependencies, and implementation context.",
-      "prompt": "You are a fast read-only discovery worker. Map the relevant files, dependencies, conventions, and risks for the requested task. Return compact evidence-backed context and do not implement code unless explicitly asked. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read any existing handoff file there first, then return your findings in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
-      "permission": {
-        "edit": "deny",
         "bash": "allow"
       }
     },
@@ -406,7 +243,7 @@
       "model": "openai/gpt-5.6-terra",
       "hidden": true,
       "description": "Provider: OpenAI. Non-Anthropic fallback frontend and product designer.",
-      "prompt": "You are the non-Anthropic fallback for @designer. Preserve existing design systems when present; otherwise create distinctive, usable interfaces rather than generic layouts. Check desktop and mobile behavior. You may implement scoped UI changes when the orchestrator asks you to do so.",
+      "prompt": "You are the non-Anthropic fallback for @ux-designer. Preserve existing design systems when present; otherwise create distinctive, usable interfaces rather than generic layouts. Check desktop and mobile behavior. You may implement scoped UI changes when the orchestrator asks you to do so.",
       "permission": {
         "bash": "allow"
       }
@@ -473,11 +310,6 @@
       "template": "Get the current checkout ready for CI. Inspect repository instructions, CI workflows, and project scripts to identify the full test suite, all-files lint or format checks, type checks, and any other required CI checks. Run the repository's existing full-scope commands locally, not just tests or lint on changed files; use PTY sessions for test suites and builds as directed by AGENTS.md. Diagnose failures, fix their causes (including test, lint, and type errors) without disabling checks, skipping tests, or overwriting unrelated user work. Run focused checks while fixing, then rerun every available full CI-equivalent check on the resulting tree and continue until they pass. If a check cannot run or a failure cannot be safely resolved, report the exact command, outcome, and blocker; never claim CI passes based on partial checks. Report files changed and final verification results. Do not stage, commit, push, or deploy unless explicitly asked.",
       "agent": "build"
     },
-    "implement": {
-      "description": "Start parallel implementation with a final review gate.",
-      "template": "Please move to implementation, use multiple @coder agents in parallel to build this quickly with a final @reviewer-fast gate unless global high-risk triggers require @reviewer.",
-      "agent": "build"
-    },
     "critique-and-implement": {
       "description": "Critique an approved plan before parallel implementation.",
       "template": "The plan is approved. In the current checkout, write or update a scratch spec doc in .opencode/sessions/<short-task-slug>/ that captures the approved plan, scope, constraints, verification, and parallelization boundaries. Have @critic review that spec first, then incorporate any valid findings directly into the spec and execution plan without asking for another user approval gate. Once revised, move straight into implementation: dispatch multiple @coder agents in parallel for independent, non-overlapping workstreams, give each coder a bounded handoff, and preserve unrelated user changes. Finish with a final @reviewer-fast gate unless global high-risk triggers require @reviewer, run relevant verification, and report the implemented changes, review findings, verification evidence, and any residual risks. Do not stage or commit unless explicitly asked.",
@@ -495,18 +327,194 @@
     },
     "rate-limit-anthropic": {
       "description": "Use non-Anthropic fallback agents when Anthropic is rate-limited.",
-      "template": "For the remainder of this session, the Anthropic provider is rate-limited and /rate-limit-anthropic is active. Do not dispatch @reviewer, @reviewer-fast, @designer, @ux-designer, @coder-fast, or @critic, including when another command requests these agents. Use @reviewer-alt for all code-review gates, @designer-alt for design or UI work, and @coder (not @coder-fast) for implementation. Use @critic-local for plan and architecture critique. Tell the user whenever you substitute one of these fallback roles, and preserve or restate these routing rules after session compaction so they continue to apply.",
+      "template": "For the remainder of this session, the Anthropic provider is rate-limited and /rate-limit-anthropic is active. Do not dispatch @reviewer, @reviewer-fast, @ux-designer, @coder-fast, or @critic, including when another command requests these agents. Use @reviewer-alt for all code-review gates, @designer-alt for design or UI work, and @coder (not @coder-fast) for implementation. For plan and architecture critique, dispatch @reviewer-alt and ask it to challenge feasibility, hidden coupling, unsafe assumptions, and likely failure modes rather than review a diff. Tell the user whenever you substitute one of these fallback roles, and restate these routing rules whenever earlier session context is summarized so they continue to apply.",
       "agent": "build"
     },
     "rate-limit-openai": {
       "description": "Use non-OpenAI fallback agents when OpenAI is rate-limited.",
-      "template": "For the remainder of this session, the OpenAI provider is rate-limited and /rate-limit-openai is active. Do not dispatch @coder, @explorer, or @debugger, including when another command requests these agents. Use @coder-local for implementation and larger bounded investigation, use @coder-fast only for simple bounded work, use @reviewer for all code-review gates, use @designer for design or UI work, and use @critic for plan and architecture critique. Tell the user whenever you substitute one of these roles, and preserve or restate these routing rules after session compaction so they continue to apply.",
+      "template": "For the remainder of this session, the OpenAI provider is rate-limited and /rate-limit-openai is active. Do not dispatch @coder, @explorer, or @debugger, including when another command requests these agents. Use @coder-fast for bounded implementation and implement work beyond its scope yourself, use @critic for larger bounded investigation, debugging hypotheses, and plan and architecture critique, use @reviewer for all code-review gates, and use @ux-designer for design or UI work. Tell the user whenever you substitute one of these roles, and restate these routing rules whenever earlier session context is summarized so they continue to apply.",
       "agent": "build"
+    }
+  },
+  "agents": {
+    "critic": {
+      "system": "You are a skeptical critic. Challenge plans and implementations for feasibility, scope creep, hidden coupling, unsafe assumptions, and likely failure modes. Also call out DRY violations: duplicated logic, copy-pasted blocks, and repeated constants or patterns that should be consolidated, while warning against over-abstraction that adds coupling or indirection without clear payoff. Prefer concise, actionable objections over broad commentary. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first, then return your objections in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
+      "description": "Provider: Anthropic. Skeptical critic for plans, architecture, hidden assumptions, and failure modes.",
+      "model": "anthropic/claude-fable-5",
+      "mode": "subagent",
+      "permissions": [
+        {
+          "action": "doom_loop",
+          "resource": "*",
+          "effect": "ask"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.local/share/opencode/tool-output/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.agents/skills/senior-engineering/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.agents/skills/stop-slop/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.config/opencode/skills/ragtime-architecture/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/verification-before-completion/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/subagent-driven-development/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-skills/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/receiving-code-review/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/requesting-code-review/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/finishing-a-development-branch/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/writing-plans/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/executing-plans/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/dispatching-parallel-agents/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/systematic-debugging/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/brainstorming/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-git-worktrees/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/test-driven-development/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.cache/opencode/packages/superpowers@git+https:/github.com/obra/superpowers.git/node_modules/superpowers/skills/using-superpowers/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "*",
+          "effect": "ask"
+        },
+        {
+          "action": "question",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "plan_enter",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "plan_exit",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "read",
+          "resource": "*.env",
+          "effect": "ask"
+        },
+        {
+          "action": "read",
+          "resource": "*.env.*",
+          "effect": "ask"
+        },
+        {
+          "action": "read",
+          "resource": "*.env.example",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "*",
+          "effect": "allow"
+        }
+      ]
     },
-    "rate-limit-openrouter-anthropic": {
-      "description": "Use OpenAI agents when Anthropic and local models are unavailable; OpenRouter is disabled.",
-      "template": "For the remainder of this session, Anthropic and local models are unavailable, OpenRouter is disabled, and /rate-limit-openrouter-anthropic is active. Do not dispatch Anthropic-backed or local-model subagents, including when another command requests them. Route implementation, all code-review gates, design or UI work, and plan or architecture critique to @coder. Route discovery to @explorer and diagnosis to @debugger. Tell the user whenever you substitute one of these roles, and preserve or restate these routing rules after session compaction so they continue to apply.",
-      "agent": "build"
+    "explorer": {
+      "system": "You are a fast read-only discovery worker. Map the relevant files, dependencies, conventions, and risks for the requested task. Return compact evidence-backed context and do not implement code unless explicitly asked. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read any existing handoff file there first, then return your findings in your final response; the orchestrator will persist them. Prefer read, grep, and glob. Use bash only for read-only inspection commands such as git status, git diff, git log, rg, pwd, and ls.",
+      "description": "Provider: OpenAI. Fast discovery worker for repo mapping, relevant files, dependencies, and implementation context.",
+      "model": "openai/gpt-6-luna-fast",
+      "mode": "subagent",
+      "permissions": [
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "*",
+          "effect": "allow"
+        }
+      ]
+    }
+  },
+  "commands": {
+    "implement": {
+      "template": "Please move to implementation. Work in the current checkout without another design or approval gate. Assume any plan or recommendations are approved. Use multiple @coder agents in parallel to build this quickly with a final @reviewer-fast gate unless global high-risk triggers require @reviewer.",
+      "description": "Start parallel implementation with a final review gate.",
+      "agent": "build",
+      "subagent": false
     }
   }
 }
