@@ -36,27 +36,65 @@
     "openai": {
       "models": {
         "gpt-6-astra": {
-          "limit": { "context": 1050000, "input": 922000 }
+          "limit": {
+            "context": 1050000,
+            "input": 922000
+          }
         },
         "gpt-6-astra-fast": {
-          "limit": { "context": 1050000, "input": 922000 }
+          "limit": {
+            "context": 1050000,
+            "input": 922000
+          }
         },
         "gpt-6-luna": {
-          "limit": { "context": 1050000, "input": 922000 }
+          "limit": {
+            "context": 1050000,
+            "input": 922000
+          }
         },
         "gpt-6-luna-fast": {
-          "limit": { "context": 1050000, "input": 922000 }
+          "limit": {
+            "context": 1050000,
+            "input": 922000
+          }
         },
         "gpt-6-sol": {
-          "limit": { "context": 1050000, "input": 922000 }
+          "limit": {
+            "context": 1050000,
+            "input": 922000
+          }
         },
         "gpt-6-sol-fast": {
-          "limit": { "context": 1050000, "input": 922000 }
+          "limit": {
+            "context": 1050000,
+            "input": 922000
+          }
+        },
+        "gpt-6-astra-ultrafast": {
+          "limit": {
+            "context": 1050000,
+            "input": 922000
+          }
+        },
+        "gpt-6.1-sol": {
+          "limit": {
+            "context": 1050000,
+            "input": 922000
+          }
+        },
+        "gpt-6.1-sol-fast": {
+          "limit": {
+            "context": 1050000,
+            "input": 922000
+          }
         }
       }
     }
   },
-  "disabled_providers": ["openrouter"],
+  "disabled_providers": [
+    "openrouter"
+  ],
   "permission": {
     "external_directory": {
       "/tmp/*": "allow"
@@ -138,7 +176,7 @@
       "mode": "subagent",
       "model": "anthropic/claude-haiku-4-5",
       "description": "Provider: Anthropic. Fast implementation worker for simple, well-defined changes. Best for mechanical edits, quick fixes, and bounded refactors.",
-      "prompt": "You are a fast bounded implementation worker optimized for speed and simple execution. Your strength is rapidly executing well-defined changes with clear instructions. Execute the orchestrator's scoped patch literally and mechanically: change only the requested files or the smallest adjacent files needed, make the exact code change specified, preserve unrelated user changes, follow repository instructions, and verify with focused checks when practical. The orchestrator should provide a concrete goal, files in scope, expected changes, constraints, non-goals, and verification commands. If the assignment requires architectural decisions, complex problem-solving, or unclear scope, return NEEDS_SCOPE immediately\u2014you are optimized for speed on bounded tasks, not exploration or design. Work patterns you excel at: type changes, import corrections, mechanical refactors (renaming, extracting constants), applying known fixes, updating configurations, formatting changes, and other well-defined single-purpose edits. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your summary and changed-file notes back into that folder.",
+      "prompt": "You are a fast bounded implementation worker optimized for speed and simple execution. Your strength is rapidly executing well-defined changes with clear instructions. Execute the orchestrator's scoped patch literally and mechanically: change only the requested files or the smallest adjacent files needed, make the exact code change specified, preserve unrelated user changes, follow repository instructions, and verify with focused checks when practical. The orchestrator should provide a concrete goal, files in scope, expected changes, constraints, non-goals, and verification commands. If the assignment requires architectural decisions, complex problem-solving, or unclear scope, return NEEDS_SCOPE immediately—you are optimized for speed on bounded tasks, not exploration or design. Work patterns you excel at: type changes, import corrections, mechanical refactors (renaming, extracting constants), applying known fixes, updating configurations, formatting changes, and other well-defined single-purpose edits. If the orchestrator gives you a session folder path (e.g. .opencode/sessions/<slug>/), read the named handoff file there first and write your summary and changed-file notes back into that folder.",
       "permission": {
         "doom_loop": "ask",
         "external_directory": {
@@ -447,7 +485,7 @@
     },
     "implement-and-pr": {
       "description": "Implement the approved plan and create or update a pull request.",
-      "template": "The plan is approved. Please implement it without another design or approval gate. Work in the current checkout\u2014do not create or switch worktrees. Follow the approved plan, run relevant verification, and use multiple @coder agents in parallel where the work splits cleanly. Organize commits at meaningful categorical boundaries you determine from the changes. Each commit must contain only its related files or hunks and use the repository's commit style. After verification passes, push the current branch. Check if this branch already has an open pull request: if yes, the push updates it; if no, open a new pull request against the appropriate base branch. This command authorizes those commits, the push, and PR creation. Return the PR URL (existing or new), branch name, commits created, verification evidence, and any residual risks.",
+      "template": "The plan is approved. Please implement it without another design or approval gate. Work in the current checkout—do not create or switch worktrees. Follow the approved plan, run relevant verification, and use multiple @coder agents in parallel where the work splits cleanly. Organize commits at meaningful categorical boundaries you determine from the changes. Each commit must contain only its related files or hunks and use the repository's commit style. After verification passes, push the current branch. Check if this branch already has an open pull request: if yes, the push updates it; if no, open a new pull request against the appropriate base branch. This command authorizes those commits, the push, and PR creation. Return the PR URL (existing or new), branch name, commits created, verification evidence, and any residual risks.",
       "agent": "build"
     },
     "implement-and-commit": {
