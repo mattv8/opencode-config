@@ -82,8 +82,8 @@
 
 ### Long-running commands
 
-- Use the PTY tools (`pty_spawn`, `pty_read`, `pty_write`, `pty_kill`) for anything long-running, interactive, or periodic: dev servers, watch modes, log tails, REPLs, builds, test suites, and polling for a condition.
-- Never busy-wait in a shell: no `sleep` loops, `watch`, `while` timers, or repeated reruns to wait for output or completion. Spawn one PTY and read its buffer.
-- For commands expected to finish, such as builds, test runs, and migrations, spawn with `notifyOnExit: true` and a `timeoutSeconds` bound, then wait for the exit notification; do not poll with `pty_read` just to detect completion.
-- For commands meant to keep running, such as dev servers and watchers, spawn without a timeout, check output with `pty_read` `pattern` filters, and call `pty_kill` when done.
-- Use a plain shell only for commands that finish quickly on their own.
+- Use the native shell with `background: true` for long-running commands: dev servers, watch modes, builds, test suites, and migrations. Background commands return immediately and emit a completion notification; no timeout by default.
+- For commands expected to finish (builds, tests, migrations), set `timeout` (milliseconds) and wait for the exit notification before inspecting results. Do not poll repeatedly or busy-wait.
+- For commands meant to keep running (dev servers, watchers), retain the process PID or command handle, monitor logs or stdout as needed, and terminate only task-owned processes on completion.
+- Prefer noninteractive CLI modes with clear exit conditions. Genuinely interactive work requires a suitable terminal interface; native shell background has no stdin mechanisms.
+- Use foreground shell execution for quick self-finishing commands.

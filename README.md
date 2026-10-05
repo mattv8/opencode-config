@@ -24,7 +24,6 @@ Keep the active app installed at `~/Applications/opencode.app`; update that inst
 - [opencode](https://opencode.ai) installed
 - Node.js 20+ and npm
 - Git
-- [Bun](https://bun.sh) (builds the PTY plugin)
 - Access to the providers in `opencode.json` (Anthropic, OpenAI, OpenRouter, local MLX server)
 
 ## Fresh Install
@@ -99,20 +98,6 @@ cd ~/.opencode && npm install
 
 ```bash
 mkdir -p ~/.config/opencode/vendor
-git clone https://github.com/shekohex/opencode-pty.git ~/.config/opencode/vendor/opencode-pty-source
-cd ~/.config/opencode/vendor/opencode-pty-source
-git checkout 9be51267ed31c81cc953b84da5b615496ab4c95a
-bun install
-bun run build:prod
-
-mkdir -p ~/.config/opencode/vendor/opencode-pty-v2
-cat <<'EOF' > ~/.config/opencode/vendor/opencode-pty-v2/index.js
-export { default } from "../opencode-pty-source/dist/src/v2/index.js";
-EOF
-cat <<'EOF' > ~/.config/opencode/vendor/opencode-pty-v2/package.json
-{"name":"local-opencode-pty-v2","private":true,"type":"module","main":"./index.js"}
-EOF
-
 git clone https://github.com/ayghri/i-have-adhd.git ~/.config/opencode/vendor/i-have-adhd
 cd ~/.config/opencode/vendor/i-have-adhd
 git checkout 58494af57962b2d7a996b4d419474380a299af5e
@@ -131,8 +116,9 @@ Plugins from the `plugins` array in `opencode.json`:
 | `@ex-machina/opencode-anthropic-auth@next` | npm | Anthropic authentication |
 | `@nm156/opencode-wakatime@1.4.0` | npm | WakaTime tracking |
 | `superpowers` v6.4.1 | git | Agent skill framework |
-| `opencode-pty-v2` | local, step 5 | PTY tools |
 | `i-have-adhd` | local, step 5 | ADHD-friendly output command |
+
+Long-running commands use OpenCode's native `shell` tool with `background: true`; finite jobs also set `timeout` in milliseconds. Completion notifications replace polling. See `config/AGENTS.md` for execution guidance.
 
 ## Custom Agents
 
