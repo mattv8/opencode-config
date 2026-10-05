@@ -153,6 +153,10 @@ Subagents defined in `opencode.json`:
 
 Built-in `general`, `explore`, and `scout` agents are disabled. All subagents can run shell commands without prompting. `reviewer`, `reviewer-fast`, `reviewer-alt`, `critic`, `explorer`, and `debugger` cannot edit files.
 
+## Vendored Skills
+
+`skills/clean-code/` contains `typescript-clean-code` and `python-clean-code` from [ertugrul-dmr/clean-code-skills](https://github.com/ertugrul-dmr/clean-code-skills) at commit `1b6b3cc1264b8fbe921c65002d05a3bf90ede178`, unmodified, under the MIT license in `skills/clean-code/LICENSE`. The other upstream skills are not installed: the Python and TypeScript tracks share skill names, and `boy-scout` asks for broader cleanups than `config/AGENTS.md` allows. To update, copy both `SKILL.md` files from a newer upstream commit and update the commit above.
+
 ## MCP Servers
 
 | Server | Type | Notes |

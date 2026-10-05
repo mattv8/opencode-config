@@ -64,13 +64,19 @@
 - Judge purpose, not location or extension. Maintained setup tools, required migrations, and reusable product tests are deliverables; one-off helpers remain scratch even under `scripts/`.
 - Before staging and committing, inspect candidate files and the staged diff for artifacts. Stage only deliverables and explicit exceptions. Unstage your own accidentally staged artifacts and keep them in scratch; preserve unrelated user work. Reviewers flag unauthorized artifacts proposed for commit, not unstaged scratch files.
 
-## 6. Code hygiene
+## 6. Clean code
+
+- When writing or changing code, load the matching clean-code skill (`typescript-clean-code` for TypeScript or JavaScript, `python-clean-code` for Python) and apply it to the code you write or change. For other languages, apply the same principles where they fit the language's idioms.
+- Repository conventions and existing style take precedence over clean-code rules. Apply the rules with judgment; do not split, wrap, or abstract code without a clear readability gain.
+- As the only exception to the smallest-change rule, you may make small related cleanups inside functions or components you are already changing, such as clearer names, dead-code removal, or named constants. Report each cleanup, and do not clean up other code or files.
+
+## 7. Code hygiene
 
 - In HTML, JSX, and TSX, give each meaningful boundary's outer element a stable, unique, human-readable hook. Boundaries include pages, sections, cards, panels, containers, modals, forms, toolbars, tables, lists, and repeated components.
 - Prefer `id` when the element is unique in the document. Otherwise use a stable semantic `data-*` attribute or an `id` derived from a durable domain identifier. Never use array indexes, random values, or presentation-only class names as identity.
 - Incidental layout wrappers and leaf elements need identifiers only when code, tests, accessibility relationships, logging, or browser inspection must reference them.
 
-## 7. Verification
+## 8. Verification
 
 - Run focused relevant checks when practical. Do not claim tests, builds, or linters pass unless you ran them in the current turn. Report unavailable or blocked verification clearly.
 
