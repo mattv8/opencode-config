@@ -36,8 +36,6 @@ Report with branch state:
 
 **If `GIT_DIR == GIT_COMMON` (or in a submodule):** You are in a normal checkout. Work in place and report: "Working in the current checkout at `<path>` on branch `<name>`." On a detached HEAD, say "at detached HEAD" instead of naming a branch.
 
-Working in place applies on every branch, including main or master. It is the user's standing preference and counts as the consent that superpowers:executing-plans and superpowers:subagent-driven-development require before implementation starts on main or master. Do not ask for that consent again.
-
 **Next step from a normal checkout:** If the user explicitly asked for a worktree, in this task or in standing instructions, go to Step 1. Otherwise skip to Step 2. A calling skill that says "create one or verify the existing one" is not a user request, and neither is a declared worktree directory on its own; verify only.
 
 ## Step 1: Create a Worktree (explicit request only)
@@ -139,7 +137,7 @@ Ready to implement <feature-name>
 
 | Situation | Action |
 |-----------|--------|
-| Normal checkout, any branch (including main/master) | Work in place, report, no question (Step 0) |
+| Normal checkout | Work in place and report; never offer a worktree (Step 0) |
 | Already in linked worktree | Skip creation (Step 0) |
 | In a submodule | Treat as normal repo (Step 0 guard) |
 | Normal checkout, user explicitly asked for a worktree | Create one (Step 1) |
@@ -160,7 +158,6 @@ Ready to implement <feature-name>
 |--------|---------|
 | "A worktree would protect their branch, so I'll offer one" | Offering is asking. Work in place unless the user explicitly asked for a worktree. |
 | "The calling skill says to create one or verify the existing one" | Verify. Creating a worktree takes an explicit request from the user, not from a skill. |
-| "I'm on main, so I need consent before implementing" | Working in place on the current branch is the user's standing consent. Report the branch and continue. |
 | "I'm obviously not in a worktree — no need to check" | Run Step 0. Harness-created isolation and submodules both fool eyeballing; the detection commands settle it. |
 | "`git worktree add` is quicker than hunting for a native tool" | A native tool (e.g. `EnterWorktree`) owns placement, branching, and cleanup. Bypassing it is the #1 mistake — it creates phantom state your harness can't see or manage. |
 | "The worktree directory is surely ignored already" | Run `git check-ignore`. An unignored worktree directory commits the whole tree into the repo. |
