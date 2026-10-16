@@ -127,9 +127,9 @@ Subagents defined in `opencode.json`:
 | Agent | Model | Role |
 |-------|-------|------|
 | `coder` | `openai/gpt-5.6-terra-fast` | Implementation worker |
-| `coder-fast` | `anthropic/claude-haiku-4-5` | Simple, well-defined edits |
+| `coder-fast` | `anthropic/claude-haiku-5-5` | Simple, well-defined edits |
 | `reviewer` | `anthropic/claude-opus-5-5` | High-accuracy code review |
-| `reviewer-fast` | `anthropic/claude-sonnet-4-6` | Routine code review |
+| `reviewer-fast` | `anthropic/claude-sonnet-5-5` | Routine code review |
 | `critic` | `anthropic/claude-fable-5` | Skeptic for plans and architecture |
 | `ux-designer` | `anthropic/claude-sonnet-4-6` | UI/UX design and critique |
 | `explorer` | `openai/gpt-6-luna-fast` | Read-only discovery |

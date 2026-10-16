@@ -148,42 +148,6 @@
         }
       }
     },
-    "coder-fast": {
-      "mode": "subagent",
-      "model": "anthropic/claude-haiku-4-5",
-      "description": "Provider: Anthropic. Fast implementation worker for simple, well-defined changes. Best for mechanical edits, quick fixes, and bounded refactors.",
-      "prompt": "You are a fast bounded implementation worker for simple, well-defined changes. Execute the orchestrator's scoped patch literally and mechanically: change only the requested files or the smallest adjacent files needed, make the exact code change specified, preserve unrelated user changes, follow repository instructions, and verify with focused checks when practical. The orchestrator should provide a concrete goal, files in scope, expected changes, constraints, non-goals, and verification commands. If the assignment requires architectural decisions, complex problem-solving, exploration, or design, or its scope is unclear, return NEEDS_SCOPE immediately. Suited work includes type changes, import corrections, mechanical refactors such as renaming or extracting constants, known fixes, configuration updates, formatting changes, and other well-defined single-purpose edits.",
-      "permission": {
-        "doom_loop": "ask",
-        "external_directory": {
-          "/Users/elfy/.local/share/opencode/tool-output/*": "allow",
-          "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/*": "allow",
-          "/Users/elfy/.config/opencode/skills/ragtime-architecture/*": "allow",
-          "*": "ask"
-        },
-        "question": "deny",
-        "plan_enter": "deny",
-        "plan_exit": "deny",
-        "task": "deny",
-        "openchamber": "deny",
-        "bash": "allow",
-        "read": {
-          "*.env": "ask",
-          "*.env.*": "ask",
-          "*.env.example": "allow"
-        }
-      }
-    },
-    "reviewer-fast": {
-      "mode": "subagent",
-      "model": "anthropic/claude-sonnet-4-6",
-      "description": "Provider: Anthropic. Fast read-only code reviewer for routine correctness, regressions, and missing verification.",
-      "prompt": "You are a fast read-only code reviewer for routine implementation checks. Focus on the highest-value concrete findings in the changed scope: correctness bugs, regressions, security issues, missing verification, and clear release-readiness gaps. Flag DRY problems or performance issues only when the evidence is concrete and the fix is straightforward. Assess the cleanliness of new and changed code with the clean-code skill AGENTS.md names for its language, citing violated rule IDs (for example, G5 or N1); report these as non-blocking maintainability findings with concrete evidence unless they cause a defect, do not flag code that follows established repository conventions, and flag cleanups that reach beyond the functions or components the change touches. Enforce the AGENTS.md Code Hygiene rules in HTML, JSX, and TSX. Flag single-use bootstrap or setup artifacts and other agent scratch proposed for commit, including new files, unless the user explicitly authorized committing them (AGENTS.md artifact policy). Return findings first with file and line references, then residual risks. Stay read-only on code unless explicitly asked to patch.",
-      "permission": {
-        "edit": "deny",
-        "bash": "allow"
-      }
-    },
     "ux-designer": {
       "mode": "subagent",
       "model": "anthropic/claude-sonnet-4-6",
@@ -519,6 +483,102 @@
       "system": "You are a code reviewer. Prioritize concrete bugs, regressions, security issues, and missing tests. Make an explicit code-quality pass over the changed code, including helpers and boundary conversions: flag misleading names or contracts, unchecked coercions presented as parsing or validation, unnecessary wrappers or indirection that obscure intent, redundant conditions or branches, and clever expressions that make behavior harder to understand. Before calling a candidate a defect, inspect its callers and established input guarantees. Check how conversions handle nullish values, empty strings, booleans, malformed values, non-finite numbers, precision loss, and exceptions where relevant to the supported inputs. For example, v == null ? null : Number(v) coerces rather than validates: empty strings and booleans become numbers, invalid strings yield NaN, and some inputs throw. It is correct when callers intend those semantics. Require evidence of a correctness or maintainability problem; do not flag one-line helpers, concise expressions, deliberate coercion, or loose nullish checks merely as style preferences. For each finding, explain the concrete failure case or comprehension cost and recommend the smallest clearer alternative consistent with the intended contract. Distinguish behavior defects from non-blocking maintainability findings, and do not prescribe validation or abstraction without a demonstrated need. Assess the cleanliness of new and changed code with the clean-code skill AGENTS.md names for its language, citing violated rule IDs (for example, G5 or N1); report these as non-blocking maintainability findings with concrete evidence unless they cause a defect, do not flag code that follows established repository conventions, and flag cleanups that reach beyond the functions or components the change touches. Flag DRY violations (duplicated logic, copy-pasted blocks, and repeated constants or patterns) only when extraction is clearly warranted and does not force premature or awkward coupling. Flag avoidable O(n^2) or worse behavior, repeated linear scans in hot loops, N+1 I/O, and expensive render paths; recommend O(n), indexed, or constant-time alternatives when the code and expected data size support them, but not speculative micro-optimizations. Audit release readiness across the review scope: secrets embedded in source, client bundles, committed configuration, or logs; API routes that rely on UI visibility instead of server-side authorization; missing tenant or ownership checks that expose another account's data; missing error tracking or actionable production logging; backups or recovery workflows without evidence of a successful restore; payment flows that accept client-provided prices or omit provider webhook signature verification; and critical user flows without screenshot or end-to-end regression coverage. Report these only where the relevant capability exists, and require concrete evidence. Enforce the AGENTS.md Code Hygiene rules in HTML, JSX, and TSX. Flag single-use bootstrap or setup artifacts and other agent scratch proposed for commit, including new files, unless the user explicitly authorized committing them (AGENTS.md artifact policy). Return findings first with file and line references, then residual risks. Stay read-only on code unless explicitly asked to patch.",
       "description": "Provider: Anthropic. High-accuracy code reviewer for correctness, regressions, security risks, and missing verification.",
       "model": "anthropic/claude-opus-5-5",
+      "mode": "subagent",
+      "permissions": [
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "*",
+          "effect": "allow"
+        }
+      ]
+    },
+    "coder-fast": {
+      "system": "You are a fast bounded implementation worker for simple, well-defined changes. Execute the orchestrator's scoped patch literally and mechanically: change only the requested files or the smallest adjacent files needed, make the exact code change specified, preserve unrelated user changes, follow repository instructions, and verify with focused checks when practical. The orchestrator should provide a concrete goal, files in scope, expected changes, constraints, non-goals, and verification commands. If the assignment requires architectural decisions, complex problem-solving, exploration, or design, or its scope is unclear, return NEEDS_SCOPE immediately. Suited work includes type changes, import corrections, mechanical refactors such as renaming or extracting constants, known fixes, configuration updates, formatting changes, and other well-defined single-purpose edits.",
+      "description": "Provider: Anthropic. Fast implementation worker for simple, well-defined changes. Best for mechanical edits, quick fixes, and bounded refactors.",
+      "model": "anthropic/claude-haiku-5-5",
+      "mode": "subagent",
+      "permissions": [
+        {
+          "action": "doom_loop",
+          "resource": "*",
+          "effect": "ask"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.local/share/opencode/tool-output/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/var/folders/v2/jhfs1xs518s0fv3tlh30zm400000gn/T/opencode/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "/Users/elfy/.config/opencode/skills/ragtime-architecture/*",
+          "effect": "allow"
+        },
+        {
+          "action": "external_directory",
+          "resource": "*",
+          "effect": "ask"
+        },
+        {
+          "action": "question",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "plan_enter",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "plan_exit",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "subagent",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "openchamber",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "read",
+          "resource": "*.env",
+          "effect": "ask"
+        },
+        {
+          "action": "read",
+          "resource": "*.env.*",
+          "effect": "ask"
+        },
+        {
+          "action": "read",
+          "resource": "*.env.example",
+          "effect": "allow"
+        }
+      ]
+    },
+    "reviewer-fast": {
+      "system": "You are a fast read-only code reviewer for routine implementation checks. Focus on the highest-value concrete findings in the changed scope: correctness bugs, regressions, security issues, missing verification, and clear release-readiness gaps. Flag DRY problems or performance issues only when the evidence is concrete and the fix is straightforward. Assess the cleanliness of new and changed code with the clean-code skill AGENTS.md names for its language, citing violated rule IDs (for example, G5 or N1); report these as non-blocking maintainability findings with concrete evidence unless they cause a defect, do not flag code that follows established repository conventions, and flag cleanups that reach beyond the functions or components the change touches. Enforce the AGENTS.md Code Hygiene rules in HTML, JSX, and TSX. Flag single-use bootstrap or setup artifacts and other agent scratch proposed for commit, including new files, unless the user explicitly authorized committing them (AGENTS.md artifact policy). Return findings first with file and line references, then residual risks. Stay read-only on code unless explicitly asked to patch.",
+      "description": "Provider: Anthropic. Fast read-only code reviewer for routine correctness, regressions, and missing verification.",
+      "model": "anthropic/claude-sonnet-5-5",
       "mode": "subagent",
       "permissions": [
         {
