@@ -143,6 +143,10 @@ Built-in `general`, `explore`, and `scout` agents are disabled. All subagents ca
 
 `skills/clean-code/` contains `typescript-clean-code` and `python-clean-code` from [ertugrul-dmr/clean-code-skills](https://github.com/ertugrul-dmr/clean-code-skills) at commit `1b6b3cc1264b8fbe921c65002d05a3bf90ede178`, unmodified, under the MIT license in `skills/clean-code/LICENSE`. The other upstream skills are not installed: the Python and TypeScript tracks share skill names, and `boy-scout` asks for broader cleanups than `config/AGENTS.md` allows. To update, copy both `SKILL.md` files from a newer upstream commit and update the commit above.
 
+## Skill Overrides
+
+`skills/using-git-worktrees/` replaces the superpowers v6.4.1 skill of the same name. Its description, Overview, Step 0, Step 1 heading and entry, Report line, Quick Reference, and Common Rationalizations differ from upstream so that agents work in the current checkout or an existing linked worktree, on any branch including `main`, and create a worktree only when the user explicitly asks. This matches section 3 of `config/AGENTS.md`. Step 1a also names OpenCode's `worktree_create` tool. The rest is upstream text. When upgrading superpowers, apply the diff between the v6.4.1 and new upstream `skills/using-git-worktrees/SKILL.md` to this file.
+
 ## MCP Servers
 
 | Server | Type | Notes |
