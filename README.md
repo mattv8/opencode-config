@@ -131,17 +131,19 @@ Subagents defined in `opencode.json`:
 | `reviewer` | `anthropic/claude-opus-5-5` | High-accuracy code review |
 | `reviewer-fast` | `anthropic/claude-sonnet-5-5` | Routine code review |
 | `critic` | `anthropic/claude-fable-5` | Skeptic for plans and architecture |
-| `ux-designer` | `anthropic/claude-sonnet-4-6` | UI/UX design and critique |
+| `ux-designer` | `anthropic/claude-sonnet-4-6` | UI/UX design and critique; loads `design-taste-frontend` for new design tasks |
 | `explorer` | `openai/gpt-6-luna-fast` | Read-only discovery |
 | `debugger` | `openai/gpt-5.6-sol` | Systematic debugging |
 | `reviewer-alt` (hidden) | `openai/gpt-5.6-terra` | Non-Anthropic review fallback |
-| `designer-alt` (hidden) | `openai/gpt-5.6-terra` | Non-Anthropic UI fallback |
+| `designer-alt` (hidden) | `openai/gpt-5.6-terra` | Non-Anthropic UI fallback; loads `design-taste-frontend` for new design tasks |
 
 Built-in `general`, `explore`, and `scout` agents are disabled. All subagents can run shell commands without prompting. `reviewer`, `reviewer-fast`, `reviewer-alt`, `critic`, `explorer`, and `debugger` cannot edit files.
 
 ## Vendored Skills
 
 `skills/clean-code/` contains `typescript-clean-code` and `python-clean-code` from [ertugrul-dmr/clean-code-skills](https://github.com/ertugrul-dmr/clean-code-skills) at commit `1b6b3cc1264b8fbe921c65002d05a3bf90ede178`, unmodified, under the MIT license in `skills/clean-code/LICENSE`. The other upstream skills are not installed: the Python and TypeScript tracks share skill names, and `boy-scout` asks for broader cleanups than `config/AGENTS.md` allows. To update, copy both `SKILL.md` files from a newer upstream commit and update the commit above.
+
+`skills/taste-skill/` contains `design-taste-frontend` (upstream folder `skills/taste-skill/`) from [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) at commit `b9ca2fd8047f4c72d7da90ebc1c1203e57c72cd2`, unmodified, under the MIT license in `skills/taste-skill/LICENSE`. Every agent can load it; only `@ux-designer` and `@designer-alt` are told to, for new design tasks. Its scripts need Node 22+ and Chrome, Edge, or Chromium, and record dealt directions in `~/.taste-skill/history.json`. The opt-in classic skills from the same repo are not installed. To update, replace `skills/taste-skill/design-taste-frontend/` with the upstream `skills/taste-skill/` folder from a newer commit and update the commit above.
 
 ## Skill Overrides
 
