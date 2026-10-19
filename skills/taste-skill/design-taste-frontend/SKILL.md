@@ -41,6 +41,31 @@ In the commands below `<skill>` is this skill's folder. Run them from the projec
 working files land in `.taste-skill/` there. The scripts need Node 22+ and an installed Chrome, Edge
 or Chromium, and install nothing. `assets.mjs` also needs network access; it uses no API keys.
 
+## First: the project's style guide
+
+Before the brief, the draw or any design decision, look for the project's own style guides: every file
+matching `.agents/**/*style-guide*.md` under the project's root, outside `.agents/skills/`. `.agents`
+is a hidden folder, so include hidden files when you search. Read each guide that covers this work (a
+web guide for a page, a mobile guide for a phone screen) in full; when two guides disagree, the more
+specific one wins. A project style guide is the project's design system, and it outranks this skill.
+Where this section and Special cases differ, this section wins.
+
+- It is the existing brand or design system in every step below. Pass `--keep` with whatever it fixes
+  (`palette`, `type` or `palette,type`) to every draw, and map its values onto the roles.
+- Build every pattern it requires exactly as the guide states, wherever and as often as the guide
+  says, even where a house rule, one of the laws of the craft or a check bans it.
+- Its components and patterns come before any dealt blueprint, app style, shell or screen pattern, and
+  before the dealt colour budget.
+- Never thin out, move or restyle a required pattern to pass a check.
+- At the gate, run `inspect.mjs` once, note the bracketed rule ids that the guide's patterns trip, and
+  re-run with all of them in one flag: `--allow rule,rule`. `lint.mjs` has no such flag and exits with
+  an error on these patterns; list its findings for them as overrides. Name every override in the
+  report.
+- Contrast and text-size checks are never allowed away: meet them, and report the conflict with the
+  guide.
+
+With no style guide, start at the next section.
+
 ## Page or app screen
 
 Decide first which of two kinds of work this is.
