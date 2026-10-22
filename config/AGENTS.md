@@ -68,7 +68,8 @@
 
 - When writing or changing code, load the matching clean-code skill (`typescript-clean-code` for TypeScript or JavaScript, `python-clean-code` for Python) and apply it to the code you write or change. For other languages, apply the same principles where they fit the language's idioms.
 - Repository conventions and existing style take precedence over clean-code rules. Apply the rules with judgment; do not split, wrap, or abstract code without a clear readability gain.
-- As the only exception to the smallest-change rule, you may make small related cleanups inside functions or components you are already changing, such as clearer names, dead-code removal, or named constants. Report each cleanup, and do not clean up other code or files.
+- As the only exception to the smallest-change rule, you may make small related cleanups inside functions or components you are already changing, such as clearer names, dead-code removal, or named constants. Report each cleanup, and do not clean up other code or files; when you notice dead code or a clear defect there, mention it in your final response instead.
+- Code your change leaves unused is part of your change, not other code. When your change removes the last use of an import, variable, or function, search the whole repository for its name, including config, scripts, and docs; if nothing else uses it, remove it in the same change, even in another file, and report the removal. Keep anything a framework, configuration, or outside caller can reach without a direct reference, such as entry points, registered handlers or plugins, and a published library's exports, and mention it instead.
 
 ## 7. Code hygiene
 
